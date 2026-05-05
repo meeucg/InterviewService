@@ -280,7 +280,6 @@ public sealed class AiGrpcInterviewTester(
         report.AppendLine($"Field of work: {scenario.FieldOfWork}");
         report.AppendLine($"Interviewer model: {_options.InterviewerModelLabel}");
         report.AppendLine($"Tester model: {_options.TesterModelLabel}");
-        report.AppendLine($"Prompt variant: {_options.PromptVariantLabel}");
         report.AppendLine($"Interview id: {interviewId}");
         report.AppendLine($"Finished at UTC: {DateTimeOffset.UtcNow:O}");
         report.AppendLine($"AI interviewer step timings ms: {FormatAiInterviewerStepTimings(transcript)}");
@@ -342,7 +341,6 @@ public sealed class AiGrpcInterviewTester(
         report.AppendLine($"Field of work: {scenario.FieldOfWork}");
         report.AppendLine($"Interviewer model: {_options.InterviewerModelLabel}");
         report.AppendLine($"Tester model: {_options.TesterModelLabel}");
-        report.AppendLine($"Prompt variant: {_options.PromptVariantLabel}");
         report.AppendLine($"Failed at UTC: {DateTimeOffset.UtcNow:O}");
         report.AppendLine();
         report.AppendLine("FAILURE");

@@ -2,7 +2,6 @@ using AIServices.Abstractions;
 using InterviewService.Application.Abstractions.Converters;
 using InterviewService.Application.Abstractions.Prompts;
 using InterviewService.Application.Abstractions.UseCases;
-using InterviewService.Application.Options;
 using InterviewService.Application.Services;
 using InterviewService.Application.Services.Validators;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +12,6 @@ public static class InterviewApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddInterviewApplication(this IServiceCollection services)
     {
-        services.AddOptions<InterviewPromptingOptions>()
-            .BindConfiguration(InterviewPromptingOptions.SectionName);
         services.AddSingleton<IPromptTemplateTextReader, ApplicationEmbeddedPromptTemplateTextReader>();
         services.AddSingleton<IPromptRenderer, PromptRenderer>();
         services.AddSingleton<IInterviewPromptParametersFactory, InterviewPromptParametersFactory>();
