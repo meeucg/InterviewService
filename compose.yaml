@@ -1,0 +1,73 @@
+services:
+  interview-grpc-api:
+    image: fitflow-interview-grpc-api
+    build:
+      context: ..
+      dockerfile: InterviewService/InterviewService.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Redis: interview-redis:6379
+      ConnectionStrings__Postgres: Host=interview-postgres;Port=5432;Database=fitflow_interviews;Username=postgres;Password=postgres
+      TextAI__ApiEndpoint: ${TEXTAI_API_ENDPOINT:-https://polza.ai/api/v1}
+      TextAI__ApiKey: ${TEXTAI_API_KEY:-}
+      AIModels__defaultModel__modelAlias: ${INTERVIEWER_MODEL_ALIAS:-Grok 4.20}
+      AIModels__defaultModel__modelName: ${INTERVIEWER_MODEL_NAME:-x-ai/grok-4.20}
+      AIModels__defaultModel__supportsJsonOutput: "true"
+      AIModels__defaultModel__supportsFunctionCalling: ${INTERVIEWER_MODEL_SUPPORTS_FUNCTION_CALLING:-false}
+    ports:
+      - "7297:8080"
+    depends_on:
+      interview-postgres:
+        condition: service_healthy
+      interview-redis:
+        condition: service_started
+
+  interview-grpc-ai-tester:
+    image: fitflow-interview-grpc-ai-tester
+    build:
+      context: ..
+      dockerfile: InterviewService/InterviewGrpcClientTester/Dockerfile
+    command: ["--ai-test"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      InterviewGrpc__Address: http://interview-grpc-api:8080
+      TextAI__ApiEndpoint: ${TEXTAI_API_ENDPOINT:-https://polza.ai/api/v1}
+      TextAI__ApiKey: ${TEXTAI_API_KEY:-}
+      AIModels__defaultModel__modelAlias: GPT-OSS 120B
+      AIModels__defaultModel__modelName: openai/gpt-oss-120b
+      AIModels__defaultModel__supportsJsonOutput: "true"
+      AIModels__defaultModel__supportsFunctionCalling: "true"
+      TextAI__RetryCount: "6"
+      AiTesting__ReportsPath: /reports
+    volumes:
+      - "C:/Users/meeuc/OneDrive/Desktop/FitFlow/AITesting/InterviewGrpcClientTester:/reports"
+    depends_on:
+      interview-grpc-api:
+        condition: service_started
+
+  interview-postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: fitflow_interviews
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "${INTERVIEW_POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - interview-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fitflow_interviews"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  interview-redis:
+    image: redis/redis-stack:latest
+    ports:
+      - "${INTERVIEW_REDIS_PORT:-56379}:6379"
+      - "${INTERVIEW_REDIS_UI_PORT:-58001}:8001"
+
+volumes:
+  interview-postgres-data:
+

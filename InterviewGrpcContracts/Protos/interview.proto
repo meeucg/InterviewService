@@ -1,0 +1,132 @@
+syntax = "proto3";
+
+option csharp_namespace = "FitFlow.Interview.Grpc.Contracts";
+
+package interview;
+
+service InterviewGateway {
+  rpc CreateNewInterview (CreateNewInterviewRequest) returns (InterviewDisplayReply);
+  rpc GetInterviewDisplay (GetInterviewDisplayRequest) returns (InterviewDisplayReply);
+  rpc GetInterviewConclusion (GetInterviewConclusionRequest) returns (UserProfileReply);
+  rpc Answer (AnswerRequest) returns (FormElementReply);
+}
+
+message CreateNewInterviewRequest {}
+
+message GetInterviewDisplayRequest {
+  string id = 1;
+}
+
+message GetInterviewConclusionRequest {
+  string id = 1;
+}
+
+message AnswerRequest {
+  string id = 1;
+  Answer answer = 2;
+}
+
+message InterviewDisplayReply {
+  InterviewDisplay interview_display = 1;
+}
+
+message FormElementReply {
+  FormElement form_element = 1;
+}
+
+message UserProfileReply {
+  UserProfile user_profile = 1;
+}
+
+message InterviewDisplay {
+  string id = 1;
+  InterviewSetup setup = 2;
+  repeated Answer required_answers = 3;
+  repeated InterviewStep completed_steps = 4;
+  Question current_question = 5;
+  UserProfile conclusion = 6;
+}
+
+message InterviewSetup {
+  string id = 1;
+  repeated Question required_questions = 2;
+}
+
+message InterviewStep {
+  Question question = 1;
+  Answer answer = 2;
+}
+
+message FormElement {
+  oneof payload {
+    Question question = 1;
+    UserProfile user_profile = 2;
+  }
+}
+
+message Question {
+  string question_text = 1;
+  repeated string answer_options = 2;
+  repeated string answer_levels = 3;
+  bool plain_text_option_present = 4;
+  bool is_single_choice = 5;
+  bool is_optional = 6;
+}
+
+message Answer {
+  repeated OptionAnswer selected_options = 1;
+  string text_answer = 2;
+  bool is_skipped = 3;
+}
+
+message OptionAnswer {
+  int32 option_id = 1;
+  int32 selected_level = 2;
+}
+
+message UserProfile {
+  string cluster = 1;
+  repeated Specialization specializations = 2;
+  repeated Skill skills = 3;
+  repeated Tool tools = 4;
+  repeated Domain preferred_domains = 5;
+}
+
+message Specialization {
+  string name = 1;
+  repeated string alternative_names = 2;
+}
+
+message Skill {
+  string display_name = 1;
+  string description = 2;
+  SkillDominanceLevel dominance_level = 3;
+  repeated string alternative_names = 4;
+}
+
+message Tool {
+  string tool_standard_name = 1;
+  ToolUsageFrequency usage_frequency = 2;
+  repeated string tool_alt_names = 3;
+}
+
+message Domain {
+  string name = 1;
+  repeated string alternative_names = 2;
+}
+
+enum SkillDominanceLevel {
+  SKILL_DOMINANCE_LEVEL_UNSPECIFIED = 0;
+  SKILL_DOMINANCE_LEVEL_CORE = 1;
+  SKILL_DOMINANCE_LEVEL_IMPORTANT = 2;
+  SKILL_DOMINANCE_LEVEL_SECONDARY = 3;
+  SKILL_DOMINANCE_LEVEL_LIMITED = 4;
+}
+
+enum ToolUsageFrequency {
+  TOOL_USAGE_FREQUENCY_UNSPECIFIED = 0;
+  TOOL_USAGE_FREQUENCY_CORE = 1;
+  TOOL_USAGE_FREQUENCY_REGULAR = 2;
+  TOOL_USAGE_FREQUENCY_OCCASIONAL = 3;
+  TOOL_USAGE_FREQUENCY_RARE = 4;
+}

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>FitFlow.Interview.Grpc.Contracts</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>FitFlow</Authors>
+    <Description>Compiled gRPC contracts for Interview microservices.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\interview.proto" GrpcServices="Both" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Grpc.Core.Api" />
+  </ItemGroup>
+</Project>

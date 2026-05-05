@@ -1,0 +1,21 @@
+[
+  {
+    "groupName": "general",
+    "requiredQuestions": [
+      {
+        "questionText": "К какой категории вы бы скорее отнесли свою профессию?",
+        "answerOptions": [ "IT", "Дизайн" ],
+        "plainTextOptionPresent": false,
+        "isSingleChoice": true,
+        "isOptional": false
+      },
+      {
+        "questionText": "Кратко опишите свою специализацию. Например: 'промышленный дизайнер' или '3D художник'",
+        "answerOptions": [],
+        "plainTextOptionPresent": true,
+        "isSingleChoice": false,
+        "isOptional": false
+      }
+    ]
+  }
+]

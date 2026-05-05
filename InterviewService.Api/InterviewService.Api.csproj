@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <RootNamespace>InterviewService.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Grpc.AspNetCore" />
+    <PackageReference Include="Meeucg.FitFlow.AIServices" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InterviewGrpcContracts\InterviewGrpcContracts.csproj" />
+    <ProjectReference Include="..\InterviewService.Application\InterviewService.Application.csproj" />
+    <ProjectReference Include="..\InterviewService.Infrastructure\InterviewService.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
