@@ -44,13 +44,15 @@ public sealed class InterviewAiRequestBuilder(
 
         var transcript = interview.GetTranscript();
         var history = BuildHistory(interview, transcript);
-        var comment = BuildRequiredPartComment(interview, transcript);
+        var requiredInterviewContext = BuildRequiredInterviewContext(interview, transcript);
         var promptTemplate = await promptTemplateTextReader.GetPromptTextAsync(promptName, ct);
         var prompt = new InterviewPrompt
         {
             PromptName = promptName,
             TextTemplate = promptTemplate,
-            PromptParameters = promptParametersFactory.CreateInterviewPromptParameters(interview.Setup, comment),
+            PromptParameters = promptParametersFactory.CreateInterviewPromptParameters(
+                interview.Setup,
+                requiredInterviewContext),
         };
         var renderedPrompt = await promptRenderer.RenderPromptAsync(prompt, ct);
 
@@ -86,7 +88,7 @@ public sealed class InterviewAiRequestBuilder(
         return history;
     }
 
-    private string BuildRequiredPartComment(Interview interview, IReadOnlyList<InterviewStep> transcript)
+    private string BuildRequiredInterviewContext(Interview interview, IReadOnlyList<InterviewStep> transcript)
     {
         var requiredPart = string.Empty;
         var lastRequiredQuestionId = interview.Setup.RequiredQuestions.Count - 1;

@@ -9,12 +9,12 @@ public class InterviewPromptParametersFactory(
     IJsonSchemaHelper jsonSchemaHelper) : IInterviewPromptParametersFactory
 {
     public InterviewPromptParameters CreateInterviewPromptParameters(
-        InterviewSetup setup, string? comment = null)
+        InterviewSetup setup, string? requiredInterviewContext = null)
     {
         return new InterviewPromptParameters
         {
             InterviewSetup = setup,
-            Comment = comment,
+            RequiredInterviewContext = requiredInterviewContext,
             AnswerScheme = jsonSchemaHelper.GetJsonScheme<Answer>(),
             FormElementScheme = jsonSchemaHelper.GetJsonScheme<FormElement>(),
         };

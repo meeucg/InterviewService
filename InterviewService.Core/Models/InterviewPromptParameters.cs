@@ -8,5 +8,5 @@ public record InterviewPromptParameters : PromptParameters
     public required InterviewSetup InterviewSetup { get; init; }
     public required string FormElementScheme { get; init; }
     public required string AnswerScheme { get; init; }
-    public string? Comment { get; init; }
+    public string? RequiredInterviewContext { get; init; }
 }

@@ -6,5 +6,5 @@ namespace InterviewService.Application.Abstractions.Prompts;
 public interface IInterviewPromptParametersFactory
 {
     InterviewPromptParameters CreateInterviewPromptParameters(
-        InterviewSetup setup, string? comment = null);
+        InterviewSetup setup, string? requiredInterviewContext = null);
 }
