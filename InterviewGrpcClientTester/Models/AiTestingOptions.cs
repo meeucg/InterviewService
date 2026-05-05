@@ -20,6 +20,8 @@ public sealed class AiTestingOptions
 
     public string TesterModelLabel { get; set; } = "GPT-OSS 120B (openai/gpt-oss-120b)";
 
+    public string PromptVariantLabel { get; set; } = "Default";
+
     public List<AiTestScenarioOptions> Scenarios { get; set; } = [];
 
     public IReadOnlyList<AiTestScenarioOptions> GetScenarios()
