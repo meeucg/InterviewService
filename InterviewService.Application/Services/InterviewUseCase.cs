@@ -4,9 +4,11 @@ using InterviewService.Application.Abstractions.Converters;
 using InterviewService.Application.Abstractions.Repositories;
 using InterviewService.Application.Abstractions.UseCases;
 using InterviewService.Application.Abstractions.Utilities;
+using InterviewService.Application.Options;
 using InterviewService.Application.Setups;
 using InterviewService.Core.Entities;
 using InterviewService.Core.Models;
+using Microsoft.Extensions.Options;
 
 namespace InterviewService.Application.Services;
 
@@ -15,10 +17,12 @@ public sealed class InterviewUseCase(
     IInterviewSetupRepository interviewSetupRepository,
     IInterviewAiConverterFactory interviewAiConverterFactory,
     IInterviewLockProvider interviewLockProvider,
-    ITextAI textAI) : IInterviewUseCase
+    ITextAI textAI,
+    IOptions<InterviewPromptingOptions> promptingOptions) : IInterviewUseCase
 {
     private static readonly TimeSpan ProcessingTimeout = TimeSpan.FromMinutes(10);
     private const int AiFormElementAttempts = 5;
+    private readonly InterviewPromptingOptions _promptingOptions = promptingOptions.Value;
 
     public async Task<Interview> CreateNewInterviewAsync(CancellationToken ct = default)
     {
@@ -58,7 +62,9 @@ public sealed class InterviewUseCase(
         {
             var converter = interviewAiConverterFactory.GetConverterForSetupGroupName(interview.Setup.GroupName);
             var aiRequest = await converter.ConvertToAiRequest(interview, processingToken);
-            var nextStep = await GetValidAiFormElementAsync(aiRequest, processingToken);
+            var requireQuestion = interview.CompletedDynamicSteps.Count <
+                                  _promptingOptions.GetMinimumDynamicAnswersBeforeConclusion();
+            var nextStep = await GetValidAiFormElementAsync(aiRequest, requireQuestion, processingToken);
 
             if (nextStep.IsQuestion)
             {
@@ -107,18 +113,32 @@ public sealed class InterviewUseCase(
 
     private async Task<FormElement> GetValidAiFormElementAsync(
         AIServices.Models.TextAIRequest aiRequest,
+        bool requireQuestion,
         CancellationToken ct)
     {
+        var request = requireQuestion
+            ? aiRequest with
+            {
+                RequestText = aiRequest.RequestText +
+                              "\n\nСистемное ограничение текущего шага: финальный UserProfile пока запрещен. Верни только FormElement с Question, чтобы собрать больше данных перед завершением интервью."
+            }
+            : aiRequest;
+
         for (var attempt = 1; attempt <= AiFormElementAttempts; attempt++)
         {
-            var aiResponse = await textAI.CompleteChatTyped<FormElement>(aiRequest, ct);
+            var aiResponse = await textAI.CompleteChatTyped<FormElement>(request, ct);
             if (!aiResponse.IsSuccess || aiResponse.Response is null)
             {
                 ct.ThrowIfCancellationRequested();
                 continue;
             }
 
-            if (aiResponse.Response.Question is not null || aiResponse.Response.UserProfile is not null)
+            if (aiResponse.Response.Question is not null)
+            {
+                return aiResponse.Response;
+            }
+
+            if (!requireQuestion && aiResponse.Response.UserProfile is not null)
             {
                 return aiResponse.Response;
             }
