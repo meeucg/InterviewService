@@ -15,6 +15,7 @@ services:
       AIModels__defaultModel__modelName: ${INTERVIEWER_MODEL_NAME:-x-ai/grok-4.20}
       AIModels__defaultModel__supportsJsonOutput: "true"
       AIModels__defaultModel__supportsFunctionCalling: ${INTERVIEWER_MODEL_SUPPORTS_FUNCTION_CALLING:-false}
+      InterviewPrompting__Variant: ${INTERVIEW_PROMPT_VARIANT:-Default}
     ports:
       - "7297:8080"
     depends_on:
