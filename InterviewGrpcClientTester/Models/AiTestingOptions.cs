@@ -24,6 +24,8 @@ public sealed class AiTestingOptions
 
     public string? ReviewerModelLabel { get; set; }
 
+    public List<AiReviewerModelOptions> ReviewerModels { get; set; } = [];
+
     public List<AiTestScenarioOptions> Scenarios { get; set; } = [];
 
     public IReadOnlyList<AiTestScenarioOptions> GetScenarios()
@@ -59,6 +61,13 @@ public sealed class AiTestingOptions
             .Where(scenario => allowedNames.Contains(scenario.Name))
             .ToList();
     }
+}
+
+public sealed class AiReviewerModelOptions
+{
+    public string? Alias { get; set; }
+
+    public required string Label { get; set; }
 }
 
 public sealed class AiTestScenarioOptions

@@ -166,18 +166,7 @@ public sealed class AiGrpcInterviewTester(
         }
 
         var finalProfileJson = Serialize(finalProfile);
-        var reviewerTextAI = GetReviewerTextAI();
-        var review = await reviewerTextAI.CompleteChat(
-            new TextAIRequest
-            {
-                ChatContext = testerChat,
-                RequestText = finalProfileJson,
-            },
-            ct);
-        if (!review.IsSuccess || string.IsNullOrWhiteSpace(review.RawResponse))
-        {
-            throw new InvalidOperationException("Tester AI failed to review the final user profile.");
-        }
+        var reviews = await ReviewFinalProfileAsync(testerChat, finalProfileJson, ct);
 
         var conclusion = await interviewClient.GetInterviewConclusionAsync(
             new GetInterviewConclusionRequest { Id = interviewId },
@@ -194,7 +183,7 @@ public sealed class AiGrpcInterviewTester(
             finalProfileJson,
             Serialize(mapper.Map<CoreUserProfile>(conclusion.UserProfile)),
             Serialize(ToBusinessDisplay(display.InterviewDisplay)),
-            review.RawResponse,
+            reviews,
             ct);
     }
 
@@ -274,7 +263,7 @@ public sealed class AiGrpcInterviewTester(
         string finalProfileJson,
         string conclusionJson,
         string displayJson,
-        string review,
+        IReadOnlyList<ReviewerResult> reviews,
         CancellationToken ct)
     {
         var report = new StringBuilder();
@@ -328,8 +317,20 @@ public sealed class AiGrpcInterviewTester(
         report.AppendLine("DISPLAY FETCH RESULT");
         report.AppendLine(displayJson);
         report.AppendLine();
-        report.AppendLine("TESTER REVIEW");
-        report.AppendLine(review);
+        report.AppendLine("TESTER REVIEWS");
+        foreach (var review in reviews)
+        {
+            report.AppendLine();
+            report.AppendLine($"REVIEWER: {review.Label}");
+            if (review.Error is not null)
+            {
+                report.AppendLine("REVIEW FAILURE");
+                report.AppendLine(review.Error);
+                continue;
+            }
+
+            report.AppendLine(review.RawResponse);
+        }
 
         await SaveReportAsync(scenario, report.ToString(), ct);
     }
@@ -373,16 +374,71 @@ public sealed class AiGrpcInterviewTester(
         return JsonSerializer.Serialize(value, _jsonOptions);
     }
 
-    private ITextAI GetReviewerTextAI()
+    private async Task<IReadOnlyList<ReviewerResult>> ReviewFinalProfileAsync(
+        Chat testerChat,
+        string finalProfileJson,
+        CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(_options.ReviewerModelAlias))
+        var results = new List<ReviewerResult>();
+        foreach (var reviewer in GetReviewerModels())
+        {
+            try
+            {
+                var review = await GetReviewerTextAI(reviewer).CompleteChat(
+                    new TextAIRequest
+                    {
+                        ChatContext = testerChat,
+                        RequestText = finalProfileJson,
+                    },
+                    ct);
+
+                if (!review.IsSuccess || string.IsNullOrWhiteSpace(review.RawResponse))
+                {
+                    results.Add(new ReviewerResult(
+                        reviewer.Label,
+                        null,
+                        "Reviewer AI returned an empty or unsuccessful response."));
+                    continue;
+                }
+
+                results.Add(new ReviewerResult(reviewer.Label, review.RawResponse, null));
+            }
+            catch (Exception ex)
+            {
+                results.Add(new ReviewerResult(reviewer.Label, null, ex.ToString()));
+            }
+        }
+
+        return results;
+    }
+
+    private IReadOnlyList<AiReviewerModelOptions> GetReviewerModels()
+    {
+        if (_options.ReviewerModels.Count > 0)
+        {
+            return _options.ReviewerModels;
+        }
+
+        return
+        [
+            new AiReviewerModelOptions
+            {
+                Alias = _options.ReviewerModelAlias,
+                Label = GetReviewerModelLabel(),
+            }
+        ];
+    }
+
+    private ITextAI GetReviewerTextAI(AiReviewerModelOptions reviewer)
+    {
+        if (string.IsNullOrWhiteSpace(reviewer.Alias))
         {
             return textAI;
         }
 
-        return serviceProvider.GetKeyedService<ITextAI>(_options.ReviewerModelAlias)
+        return serviceProvider.GetKeyedService<ITextAI>(reviewer.Alias)
                ?? throw new InvalidOperationException(
-                   $"Reviewer AI model with alias '{_options.ReviewerModelAlias}' is not registered.");
+                   $"Reviewer AI model with alias '{reviewer.Alias}' is not registered.");
     }
 
     private string GetReviewerModelLabel()
@@ -458,4 +514,9 @@ public sealed class AiGrpcInterviewTester(
         string RawAnswer,
         TimeSpan AnswerRpcDuration,
         bool TriggersAiInterviewerStep);
+
+    private sealed record ReviewerResult(
+        string Label,
+        string? RawResponse,
+        string? Error);
 }
