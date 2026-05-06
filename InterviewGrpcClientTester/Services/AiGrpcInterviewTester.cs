@@ -22,6 +22,7 @@ namespace InterviewGrpcClientTester.Services;
 public sealed class AiGrpcInterviewTester(
     InterviewGateway.InterviewGatewayClient interviewClient,
     ITextAI textAI,
+    IServiceProvider serviceProvider,
     IJsonSchemaHelper jsonSchemaHelper,
     IOptions<AIJsonOptions> aiJsonOptions,
     IOptions<AiTestingOptions> aiTestingOptions,
@@ -165,7 +166,8 @@ public sealed class AiGrpcInterviewTester(
         }
 
         var finalProfileJson = Serialize(finalProfile);
-        var review = await textAI.CompleteChat(
+        var reviewerTextAI = GetReviewerTextAI();
+        var review = await reviewerTextAI.CompleteChat(
             new TextAIRequest
             {
                 ChatContext = testerChat,
@@ -280,6 +282,7 @@ public sealed class AiGrpcInterviewTester(
         report.AppendLine($"Field of work: {scenario.FieldOfWork}");
         report.AppendLine($"Interviewer model: {_options.InterviewerModelLabel}");
         report.AppendLine($"Tester model: {_options.TesterModelLabel}");
+        report.AppendLine($"Reviewer model: {GetReviewerModelLabel()}");
         report.AppendLine($"Interview id: {interviewId}");
         report.AppendLine($"Finished at UTC: {DateTimeOffset.UtcNow:O}");
         report.AppendLine($"AI interviewer step timings ms: {FormatAiInterviewerStepTimings(transcript)}");
@@ -341,6 +344,7 @@ public sealed class AiGrpcInterviewTester(
         report.AppendLine($"Field of work: {scenario.FieldOfWork}");
         report.AppendLine($"Interviewer model: {_options.InterviewerModelLabel}");
         report.AppendLine($"Tester model: {_options.TesterModelLabel}");
+        report.AppendLine($"Reviewer model: {GetReviewerModelLabel()}");
         report.AppendLine($"Failed at UTC: {DateTimeOffset.UtcNow:O}");
         report.AppendLine();
         report.AppendLine("FAILURE");
@@ -367,6 +371,30 @@ public sealed class AiGrpcInterviewTester(
     private string Serialize<T>(T value)
     {
         return JsonSerializer.Serialize(value, _jsonOptions);
+    }
+
+    private ITextAI GetReviewerTextAI()
+    {
+        if (string.IsNullOrWhiteSpace(_options.ReviewerModelAlias))
+        {
+            return textAI;
+        }
+
+        return serviceProvider.GetKeyedService<ITextAI>(_options.ReviewerModelAlias)
+               ?? throw new InvalidOperationException(
+                   $"Reviewer AI model with alias '{_options.ReviewerModelAlias}' is not registered.");
+    }
+
+    private string GetReviewerModelLabel()
+    {
+        if (!string.IsNullOrWhiteSpace(_options.ReviewerModelLabel))
+        {
+            return _options.ReviewerModelLabel;
+        }
+
+        return string.IsNullOrWhiteSpace(_options.ReviewerModelAlias)
+            ? _options.TesterModelLabel
+            : _options.ReviewerModelAlias;
     }
 
     private static bool TriggersAiInterviewerStep(int zeroBasedTurn, int requiredQuestionCount)
