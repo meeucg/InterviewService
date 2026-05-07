@@ -2,8 +2,8 @@ services:
   interview-grpc-api:
     image: fitflow-interview-grpc-api
     build:
-      context: ..
-      dockerfile: InterviewService/InterviewService.Api/Dockerfile
+      context: .
+      dockerfile: InterviewService.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080

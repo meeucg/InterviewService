@@ -9,8 +9,11 @@
 **/.vscode
 **/.idea
 **/*.*proj.user
+**/*.user
+**/appsettings*.json
 **/*.dbmdl
 **/*.jfm
+**/TestResults
 **/azds.yaml
 **/bin
 **/charts
