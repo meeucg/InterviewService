@@ -5,6 +5,9 @@ using InterviewService.Application.Abstractions.Prompts;
 
 namespace InterviewService.Application.Services;
 
+/// <summary>
+/// Reads embedded prompt template files from the Application assembly.
+/// </summary>
 public sealed class ApplicationEmbeddedPromptTemplateTextReader : IPromptTemplateTextReader
 {
     private const string ResourceNamespacePrefix = "InterviewService.Application.Prompts.";

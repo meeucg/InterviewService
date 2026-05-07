@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InterviewService.Infrastructure.Stores;
 
+/// <summary>
+/// Scoped PostgreSQL storage unit for setup DTO persistence.
+/// </summary>
 public sealed class PostgresInterviewSetupStorage(
     InterviewServiceDbContext dbContext,
     IMapper mapper) : IRepository<PostgresInterviewSetupDto>

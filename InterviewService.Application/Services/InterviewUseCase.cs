@@ -10,6 +10,9 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Application.Services;
 
+/// <summary>
+/// Coordinates interview creation, atomic answer handling, AI next-step generation, and read-only step lookup.
+/// </summary>
 public sealed class InterviewUseCase(
     IInterviewRepository interviewRepository,
     IInterviewSetupRepository interviewSetupRepository,

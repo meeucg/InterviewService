@@ -7,6 +7,9 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Core.Invariants;
 
+/// <summary>
+/// Computes deterministic setup identifiers from canonical setup payloads.
+/// </summary>
 public static class InterviewSetupIdentity
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()

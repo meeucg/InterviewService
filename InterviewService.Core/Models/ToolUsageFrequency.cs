@@ -3,6 +3,9 @@ using System.ComponentModel;
 namespace InterviewService.Core.Models;
 
 [Description("Частота использования инструмента пользователем в профессиональной деятельности.")]
+/// <summary>
+/// Describes how frequently the user appears to use a detected tool.
+/// </summary>
 public enum ToolUsageFrequency
 {
     [Description("Основной инструмент, используемый практически ежедневно или " +

@@ -3,6 +3,9 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Core.Entities;
 
+/// <summary>
+/// Immutable interview setup version identified by a content hash and grouped by a stable business name.
+/// </summary>
 public sealed class InterviewSetup
 {
     public InterviewSetup(string groupName, IReadOnlyList<Question> requiredQuestions)

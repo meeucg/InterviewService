@@ -4,6 +4,9 @@ namespace InterviewService.Core.Models;
 
 [Description("Профессиональный навык пользователя. " +
              "Каждый навык должен отражать одну отдельную компетенцию.")]
+/// <summary>
+/// Represents a skill detected in the final user profile.
+/// </summary>
 public record Skill
 {
     [Description("Краткое каноничное название навыка.")]

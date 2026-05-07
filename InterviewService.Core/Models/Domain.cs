@@ -3,6 +3,9 @@ using System.ComponentModel;
 namespace InterviewService.Core.Models;
 
 [Description("Предпочитаемая или знакомая пользователю доменная область бизнеса или типа продукта.")]
+/// <summary>
+/// Describes a professional domain detected for the interviewed user.
+/// </summary>
 public record Domain
 {
     [Description("Каноничное название доменной области, например FinTech, E-commerce, " +

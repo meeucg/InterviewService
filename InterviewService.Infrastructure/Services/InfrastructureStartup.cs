@@ -8,6 +8,9 @@ using Redis.OM.Contracts;
 
 namespace InterviewService.Infrastructure.Services;
 
+/// <summary>
+/// Runs infrastructure startup tasks such as migrations, Redis index creation, and setup seeding.
+/// </summary>
 public sealed class InfrastructureStartup(
     InterviewServiceDbContext dbContext,
     IRedisConnectionProvider redisConnectionProvider,

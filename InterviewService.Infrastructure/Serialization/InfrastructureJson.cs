@@ -5,6 +5,9 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace InterviewService.Infrastructure.Serialization;
 
+/// <summary>
+/// Shared JSON serializer settings for infrastructure persistence payloads.
+/// </summary>
 public static class InfrastructureJson
 {
     public static JsonSerializerOptions SerializerOptions { get; } = CreateSerializerOptions();

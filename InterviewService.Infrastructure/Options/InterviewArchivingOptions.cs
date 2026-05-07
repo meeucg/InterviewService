@@ -1,5 +1,8 @@
 namespace InterviewService.Infrastructure.Options;
 
+/// <summary>
+/// Configures inactivity threshold and sweep cadence for Redis-to-PostgreSQL archival.
+/// </summary>
 public sealed class InterviewArchivingOptions
 {
     public const string SectionName = "Archiving";

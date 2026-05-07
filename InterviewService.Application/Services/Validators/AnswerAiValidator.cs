@@ -3,6 +3,9 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Application.Services.Validators;
 
+/// <summary>
+/// Validates AI-generated answer payloads before they are accepted by the AI services pipeline.
+/// </summary>
 public sealed class AnswerAiValidator : IValidatorForAI<Answer>
 {
     public Type GetValidatorType()

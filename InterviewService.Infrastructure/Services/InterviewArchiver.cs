@@ -11,6 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace InterviewService.Infrastructure.Services;
 
+/// <summary>
+/// Hosted archival worker that moves stale or finished Redis interviews into PostgreSQL.
+/// </summary>
 public sealed class InterviewArchiver(
     IServiceScopeFactory serviceScopeFactory,
     IOptions<InterviewArchivingOptions> options,

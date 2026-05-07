@@ -3,6 +3,9 @@ using System.ComponentModel;
 namespace InterviewService.Core.Models;
 
 [Description("Уровень важности или доминантности навыка в профессии пользователя.")]
+/// <summary>
+/// Describes how central a detected skill is to the user profile.
+/// </summary>
 public enum SkillDominanceLevel
 {
     [Description("Ключевой, определяющий навык, который является одной из " +

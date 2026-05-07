@@ -5,6 +5,9 @@ using InterviewService.Infrastructure.Serialization;
 
 namespace InterviewService.Infrastructure.Profiles;
 
+/// <summary>
+/// AutoMapper profile for domain, PostgreSQL DTO, and Redis document conversions.
+/// </summary>
 public sealed class InterviewInfrastructureMappingProfile : Profile
 {
     public InterviewInfrastructureMappingProfile()

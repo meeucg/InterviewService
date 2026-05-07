@@ -17,6 +17,9 @@ using CoreUserProfile = InterviewService.Core.Models.UserProfile;
 
 namespace InterviewService.Api.Profiles;
 
+/// <summary>
+/// AutoMapper profile that maps between domain models and gRPC contract models.
+/// </summary>
 public sealed class InterviewGrpcMappingProfile : Profile
 {
     public InterviewGrpcMappingProfile()

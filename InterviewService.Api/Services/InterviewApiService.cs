@@ -7,6 +7,9 @@ using InterviewService.Application.Abstractions.UseCases;
 
 namespace InterviewService.Api.Services;
 
+/// <summary>
+/// gRPC endpoint implementation for creating interviews, answering questions, and reading interview results.
+/// </summary>
 public class InterviewApiService(
     IInterviewUseCase interviewUseCase,
     IInterviewRepository interviewRepository,

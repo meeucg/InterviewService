@@ -9,6 +9,9 @@ using InterviewService.Infrastructure.Stores;
 
 namespace InterviewService.Infrastructure.Repositories;
 
+/// <summary>
+/// Domain interview repository that composes Redis active storage and PostgreSQL archive storage.
+/// </summary>
 public sealed class InterviewRepository(
     RedisInterviewStorage redisStorage,
     PostgresInterviewStorage postgresStorage,

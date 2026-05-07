@@ -6,6 +6,9 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Application.Services;
 
+/// <summary>
+/// Routes general setup interviews to IT or design prompt templates based on the cluster answer.
+/// </summary>
 public sealed class GeneralSetupConverter(IInterviewAiRequestBuilder requestBuilder) : IInterviewAiConverter
 {
     private const string ItPromptName = "ItInterviewerPrompt";

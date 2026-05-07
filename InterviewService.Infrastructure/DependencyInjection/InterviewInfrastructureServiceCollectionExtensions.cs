@@ -14,6 +14,9 @@ using Redis.OM.Contracts;
 
 namespace InterviewService.Infrastructure.DependencyInjection;
 
+/// <summary>
+/// Registers infrastructure persistence, cache, mapping, startup, and archival services.
+/// </summary>
 public static class InterviewInfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInterviewInfrastructure(

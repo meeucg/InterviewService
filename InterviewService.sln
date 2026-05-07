@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewGrpcContracts", "InterviewGrpcContracts\InterviewGrpcContracts.csproj", "{42620496-E063-480D-A670-838784FC12BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewGrpcClientTester", "InterviewGrpcClientTester\InterviewGrpcClientTester.csproj", "{200B94C2-5235-4FDD-B114-A26AF699E6AC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewService.Core", "InterviewService.Core\\InterviewService.Core.csproj", "{90810050-B3C1-437A-B281-30A5F77509EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewService.Api", "InterviewService.Api\\InterviewService.Api.csproj", "{A6E1EEED-2E99-4ACE-8535-37E40D6BDA57}"
@@ -39,18 +37,6 @@ Global
 		{42620496-E063-480D-A670-838784FC12BC}.Release|x64.Build.0 = Release|Any CPU
 		{42620496-E063-480D-A670-838784FC12BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{42620496-E063-480D-A670-838784FC12BC}.Release|x86.Build.0 = Release|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Debug|x64.Build.0 = Debug|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Debug|x86.Build.0 = Debug|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Release|x64.ActiveCfg = Release|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Release|x64.Build.0 = Release|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Release|x86.ActiveCfg = Release|Any CPU
-		{200B94C2-5235-4FDD-B114-A26AF699E6AC}.Release|x86.Build.0 = Release|Any CPU
 		{90810050-B3C1-437A-B281-30A5F77509EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{90810050-B3C1-437A-B281-30A5F77509EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90810050-B3C1-437A-B281-30A5F77509EB}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -104,4 +90,3 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
-

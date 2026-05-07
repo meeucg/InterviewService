@@ -7,6 +7,9 @@ using Redis.OM.Searching;
 
 namespace InterviewService.Infrastructure.Stores;
 
+/// <summary>
+/// Scoped Redis OM storage unit for setup cache documents.
+/// </summary>
 public sealed class RedisInterviewSetupStorage(IRedisConnectionProvider redisConnectionProvider)
     : IRepository<RedisInterviewSetupDocument>
 {

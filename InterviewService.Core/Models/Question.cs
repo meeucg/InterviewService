@@ -3,6 +3,9 @@ using System.ComponentModel;
 namespace InterviewService.Core.Models;
 
 [Description("Один вопрос анкеты с заранее заданными вариантами ответа.")]
+/// <summary>
+/// Represents a question shown to the user, including choice and free-text constraints.
+/// </summary>
 public record Question
 {
     [Description("Текст вопроса, который показывается пользователю. " +

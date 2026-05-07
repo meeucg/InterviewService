@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace InterviewService.Infrastructure.Data;
 
+/// <summary>
+/// Design-time DbContext factory used by EF Core tooling.
+/// </summary>
 public sealed class InterviewServiceDbContextFactory : IDesignTimeDbContextFactory<InterviewServiceDbContext>
 {
     public InterviewServiceDbContext CreateDbContext(string[] args)

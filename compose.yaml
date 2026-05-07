@@ -23,29 +23,6 @@ services:
       interview-redis:
         condition: service_started
 
-  interview-grpc-ai-tester:
-    image: fitflow-interview-grpc-ai-tester
-    build:
-      context: ..
-      dockerfile: InterviewService/InterviewGrpcClientTester/Dockerfile
-    command: ["--ai-test"]
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      InterviewGrpc__Address: http://interview-grpc-api:8080
-      TextAI__ApiEndpoint: ${TEXTAI_API_ENDPOINT:-https://polza.ai/api/v1}
-      TextAI__ApiKey: ${TEXTAI_API_KEY:-}
-      AIModels__defaultModel__modelAlias: GPT-OSS 120B
-      AIModels__defaultModel__modelName: openai/gpt-oss-120b
-      AIModels__defaultModel__supportsJsonOutput: "true"
-      AIModels__defaultModel__supportsFunctionCalling: "true"
-      TextAI__RetryCount: "6"
-      AiTesting__ReportsPath: /reports
-    volumes:
-      - "C:/Users/meeuc/OneDrive/Desktop/FitFlow/AITesting/InterviewGrpcClientTester:/reports"
-    depends_on:
-      interview-grpc-api:
-        condition: service_started
-
   interview-postgres:
     image: postgres:17-alpine
     environment:

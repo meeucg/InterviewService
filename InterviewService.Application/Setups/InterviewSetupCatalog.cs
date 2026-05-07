@@ -7,6 +7,9 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Application.Setups;
 
+/// <summary>
+/// Loads required setup definitions from embedded application JSON and exposes the default setup.
+/// </summary>
 public static class InterviewSetupCatalog
 {
     public const string GeneralGroupName = "general";

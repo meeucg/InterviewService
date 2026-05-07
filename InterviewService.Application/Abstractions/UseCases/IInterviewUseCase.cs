@@ -2,7 +2,9 @@ using InterviewService.Core.Entities;
 using InterviewService.Core.Models;
 
 namespace InterviewService.Application.Abstractions.UseCases;
-
+/// <summary>
+/// Application facade for creating interviews, submitting answers, and reading the next step.
+/// </summary>
 public interface IInterviewUseCase
 {
     Task<Interview> CreateNewInterviewAsync(CancellationToken ct = default);

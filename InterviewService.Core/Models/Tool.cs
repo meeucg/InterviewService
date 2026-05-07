@@ -4,6 +4,9 @@ namespace InterviewService.Core.Models;
 
 [Description("Инструмент, технология, платформа, библиотека, сервис, " +
              "рабочая программа или среда, которыми пользователь реально пользуется.")]
+/// <summary>
+/// Represents a tool or technology detected in the final user profile.
+/// </summary>
 public record Tool
 {
     [Description("Каноничное или стандартное название инструмента.")]

@@ -4,6 +4,9 @@ using InterviewService.Application.Abstractions.Utilities;
 
 namespace InterviewService.Infrastructure.Services;
 
+/// <summary>
+/// In-process implementation of per-interview asynchronous locks.
+/// </summary>
 public sealed class InMemoryInterviewLockProvider : IInterviewLockProvider
 {
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _locks = new();

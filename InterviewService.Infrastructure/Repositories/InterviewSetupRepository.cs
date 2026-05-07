@@ -8,6 +8,9 @@ using InterviewService.Infrastructure.Stores;
 
 namespace InterviewService.Infrastructure.Repositories;
 
+/// <summary>
+/// Domain setup repository that keeps PostgreSQL as source of truth and warms Redis cache.
+/// </summary>
 public sealed class InterviewSetupRepository(
     RedisInterviewSetupStorage redisStorage,
     PostgresInterviewSetupStorage postgresStorage,

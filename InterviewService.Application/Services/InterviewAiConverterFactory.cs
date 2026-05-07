@@ -2,6 +2,9 @@ using InterviewService.Application.Abstractions.Converters;
 
 namespace InterviewService.Application.Services;
 
+/// <summary>
+/// Default implementation that indexes converters by setup group name.
+/// </summary>
 public sealed class InterviewAiConverterFactory(IEnumerable<IInterviewAiConverter> converters)
     : IInterviewAiConverterFactory
 {

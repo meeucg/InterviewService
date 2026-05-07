@@ -2,6 +2,9 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Core.Entities;
 
+/// <summary>
+/// Domain aggregate that owns interview progress, turn rules, required answers, dynamic steps, and conclusion state.
+/// </summary>
 public class Interview
 {
     private readonly List<Answer> _answersToRequiredQuestions;

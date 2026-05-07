@@ -7,6 +7,9 @@ using Redis.OM.Searching;
 
 namespace InterviewService.Infrastructure.Stores;
 
+/// <summary>
+/// Scoped Redis OM storage unit for active interview documents and archival queries.
+/// </summary>
 public sealed class RedisInterviewStorage(IRedisConnectionProvider redisConnectionProvider)
     : IRepository<RedisInterviewDocument>
 {

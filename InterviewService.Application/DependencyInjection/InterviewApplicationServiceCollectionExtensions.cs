@@ -8,6 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace InterviewService.Application.DependencyInjection;
 
+/// <summary>
+/// Registers application-layer services, prompt services, AI converters, and use cases.
+/// </summary>
 public static class InterviewApplicationServiceCollectionExtensions
 {
     public static IServiceCollection AddInterviewApplication(this IServiceCollection services)

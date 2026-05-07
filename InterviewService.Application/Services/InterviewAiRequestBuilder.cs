@@ -10,6 +10,9 @@ using Microsoft.Extensions.Options;
 
 namespace InterviewService.Application.Services;
 
+/// <summary>
+/// Default AI request builder that renders prompts and appends interview transcript chat history.
+/// </summary>
 public sealed class InterviewAiRequestBuilder(
     IPromptTemplateTextReader promptTemplateTextReader,
     IPromptRenderer promptRenderer,

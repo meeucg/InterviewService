@@ -1,5 +1,8 @@
 namespace InterviewService.Infrastructure.Models;
 
+/// <summary>
+/// PostgreSQL DTO for archived interview state stored as JSONB.
+/// </summary>
 public sealed class PostgresInterviewDto
 {
     public Guid Id { get; set; }

@@ -4,6 +4,9 @@ namespace InterviewService.Core.Models;
 
 [Description("Профессиональная специализация пользователя. " +
              "Специализация отвечает на вопрос, в каком направлении работает человек как специалист.")]
+/// <summary>
+/// Represents the primary professional specialization inferred for the user.
+/// </summary>
 public record Specialization
 {
     [Description("Каноничное название специализации пользователя.")]

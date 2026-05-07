@@ -4,6 +4,9 @@ namespace InterviewService.Core.Models;
 
 [Description("Полный структурированный профессиональный профиль пользователя, " +
              "используемый для рекомендаций вакансий и описания области его экспертизы.")]
+/// <summary>
+/// Final structured profile produced at the end of an interview.
+/// </summary>
 public record UserProfile
 {
     [Description("Основной профессиональный кластер пользователя, например Design или IT.")]

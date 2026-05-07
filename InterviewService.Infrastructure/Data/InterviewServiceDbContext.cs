@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InterviewService.Infrastructure.Data;
 
+/// <summary>
+/// EF Core DbContext for archived interviews and immutable interview setup rows.
+/// </summary>
 public sealed class InterviewServiceDbContext(DbContextOptions<InterviewServiceDbContext> options) : DbContext(options)
 {
     public DbSet<PostgresInterviewDto> Interviews => Set<PostgresInterviewDto>();

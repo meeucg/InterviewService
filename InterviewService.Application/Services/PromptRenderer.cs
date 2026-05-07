@@ -4,6 +4,9 @@ using Scriban;
 
 namespace InterviewService.Application.Services;
 
+/// <summary>
+/// Renders prompt templates with Scriban using strongly typed parameter objects.
+/// </summary>
 public sealed class PromptRenderer : IPromptRenderer
 {
     public Task<string> RenderPromptAsync<T>(Prompt<T> prompt, CancellationToken ct) where T : PromptParameters

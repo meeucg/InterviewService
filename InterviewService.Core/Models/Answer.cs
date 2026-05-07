@@ -4,6 +4,9 @@ namespace InterviewService.Core.Models;
 
 [Description("Ответ пользователя на один вопрос анкеты. " +
              "Содержит выбранные номера вариантов ответа и, при необходимости, текст собственного варианта.")]
+/// <summary>
+/// Represents a user answer to a required or dynamic interview question.
+/// </summary>
 public record Answer
 {
     [Description("Список номеров выбранных пользователем вариантов ответа. " +

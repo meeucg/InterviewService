@@ -1,10 +1,13 @@
-﻿using AIServices.Abstractions;
+using AIServices.Abstractions;
 using InterviewService.Application.Abstractions.Prompts;
 using InterviewService.Core.Entities;
 using InterviewService.Core.Models;
 
 namespace InterviewService.Application.Services;
 
+/// <summary>
+/// Creates prompt parameters from interview setup, transcript, schemas, and required-step context.
+/// </summary>
 public class InterviewPromptParametersFactory(
     IJsonSchemaHelper jsonSchemaHelper) : IInterviewPromptParametersFactory
 {

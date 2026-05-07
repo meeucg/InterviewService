@@ -4,6 +4,9 @@ using InterviewService.Core.Models;
 namespace InterviewService.Infrastructure.Models;
 
 [Document(StorageType = StorageType.Json, Prefixes = ["interviews:v4:active"])]
+/// <summary>
+/// Redis OM document for active or not-yet-archived interview state.
+/// </summary>
 public sealed class RedisInterviewDocument
 {
     [RedisIdField]

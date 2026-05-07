@@ -5,6 +5,9 @@ namespace InterviewService.Core.Models;
 [Description("Единый элемент ответа ИИ в процессе онбординга. " +
              "Это либо следующий вопрос, либо финальный собранный профиль навыков пользователя. " +
              "Конкретный тип ответа определяется полем IsQuestion.")]
+/// <summary>
+/// Represents the next interview UI element: either a question or the final user profile.
+/// </summary>
 public record FormElement
 {
     [Description("Значение true означает, что текущий ответ содержит следующий вопрос анкеты. " +
