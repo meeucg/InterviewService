@@ -3,10 +3,10 @@ using InterviewService.Core.Models;
 
 namespace InterviewService.Infrastructure.Models;
 
-[Document(StorageType = StorageType.Json, Prefixes = ["interviews:v4:setup"])]
 /// <summary>
 /// Redis OM document for cached immutable interview setup state.
 /// </summary>
+[Document(StorageType = StorageType.Json, Prefixes = ["interviews:v4:setup"])]
 public sealed class RedisInterviewSetupDocument
 {
     [RedisIdField]

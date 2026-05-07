@@ -2,7 +2,7 @@ using InterviewService.Application.Abstractions.Prompts;
 using InterviewService.Core.Abstractions;
 using Scriban;
 
-namespace InterviewService.Application.Services;
+namespace InterviewService.Application.Services.Prompts;
 
 /// <summary>
 /// Renders prompt templates with Scriban using strongly typed parameter objects.

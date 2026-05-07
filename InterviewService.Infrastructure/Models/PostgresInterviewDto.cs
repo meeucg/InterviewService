@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InterviewService.Infrastructure.Models;
 
 /// <summary>
@@ -11,5 +13,6 @@ public sealed class PostgresInterviewDto
 
     public PostgresInterviewSetupDto? Setup { get; set; }
 
+    [MaxLength(131072)]
     public string PayloadJson { get; set; } = string.Empty;
 }

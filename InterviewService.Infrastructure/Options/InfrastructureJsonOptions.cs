@@ -3,14 +3,14 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
-namespace InterviewService.Infrastructure.Serialization;
+namespace InterviewService.Infrastructure.Options;
 
 /// <summary>
-/// Shared JSON serializer settings for infrastructure persistence payloads.
+/// Configures JSON serializer settings for infrastructure persistence payloads.
 /// </summary>
-public static class InfrastructureJson
+public sealed class InfrastructureJsonOptions
 {
-    public static JsonSerializerOptions SerializerOptions { get; } = CreateSerializerOptions();
+    public JsonSerializerOptions SerializerOptions { get; set; } = CreateSerializerOptions();
 
     private static JsonSerializerOptions CreateSerializerOptions()
     {

@@ -11,8 +11,7 @@ namespace InterviewService.Infrastructure.Stores;
 /// Scoped PostgreSQL storage unit for setup DTO persistence.
 /// </summary>
 public sealed class PostgresInterviewSetupStorage(
-    InterviewServiceDbContext dbContext,
-    IMapper mapper) : IRepository<PostgresInterviewSetupDto>
+    InterviewServiceDbContext dbContext) : IRepository<PostgresInterviewSetupDto>
 {
     private bool _disposed;
     private bool _hasPendingChanges;
@@ -26,33 +25,18 @@ public sealed class PostgresInterviewSetupStorage(
             .SingleOrDefaultAsync(x => x.Id == id, ct);
     }
 
-    public Task SetAsync(PostgresInterviewSetupDto entity, CancellationToken ct = default)
+    public async Task SetAsync(PostgresInterviewSetupDto entity, CancellationToken ct = default)
     {
-        return UpsertAsync(entity, ct);
+        ArgumentNullException.ThrowIfNull(entity);
+        EnsureNotDisposed();
+
+        await dbContext.InterviewSetups.AddAsync(entity, ct);
+        _hasPendingChanges = true;
     }
 
     public Task UpdateAsync(PostgresInterviewSetupDto entity, CancellationToken ct = default)
     {
         throw new InvalidOperationException("Interview setup storage updates are not allowed.");
-    }
-
-    public async Task UpsertAsync(PostgresInterviewSetupDto entity, CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-        EnsureNotDisposed();
-
-        var existing = await dbContext.InterviewSetups
-            .SingleOrDefaultAsync(x => x.Id == entity.Id, ct);
-
-        if (existing is null)
-        {
-            dbContext.InterviewSetups.Add(entity);
-            _hasPendingChanges = true;
-            return;
-        }
-
-        mapper.Map(entity, existing);
-        _hasPendingChanges = true;
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)

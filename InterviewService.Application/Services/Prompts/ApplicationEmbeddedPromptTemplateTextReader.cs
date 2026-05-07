@@ -1,9 +1,8 @@
 using System.Collections.Concurrent;
 using System.Reflection;
-using InterviewService.Application.Abstractions;
 using InterviewService.Application.Abstractions.Prompts;
 
-namespace InterviewService.Application.Services;
+namespace InterviewService.Application.Services.Prompts;
 
 /// <summary>
 /// Reads embedded prompt template files from the Application assembly.

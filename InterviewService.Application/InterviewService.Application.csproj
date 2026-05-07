@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Prompts\**\*.txt" />
+    <EmbeddedResource Include="Services\Setups\interview-setups.json" />
     <EmbeddedResource Include="Setups\**\*.json" />
   </ItemGroup>
 </Project>

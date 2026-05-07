@@ -1,5 +1,4 @@
-using InterviewService.Application.Abstractions;
-using InterviewService.Application.Abstractions.Repositories;
+using InterviewService.Infrastructure.Abstractions;
 using InterviewService.Infrastructure.Models;
 using Redis.OM;
 using Redis.OM.Contracts;
@@ -11,7 +10,7 @@ namespace InterviewService.Infrastructure.Stores;
 /// Scoped Redis OM storage unit for active interview documents and archival queries.
 /// </summary>
 public sealed class RedisInterviewStorage(IRedisConnectionProvider redisConnectionProvider)
-    : IRepository<RedisInterviewDocument>
+    : IActiveInterviewStorage
 {
     private readonly IRedisCollection<RedisInterviewDocument> _interviews =
         redisConnectionProvider.RedisCollection<RedisInterviewDocument>(saveState: false);
@@ -24,14 +23,17 @@ public sealed class RedisInterviewStorage(IRedisConnectionProvider redisConnecti
         return await _interviews.FindByIdAsync(id.ToString("D"));
     }
 
-    public Task SetAsync(RedisInterviewDocument entity, CancellationToken ct = default)
+    public Task StoreAsync(RedisInterviewDocument entity, CancellationToken ct = default)
     {
-        return QueueSaveAsync(entity, ct);
-    }
+        ArgumentNullException.ThrowIfNull(entity);
+        EnsureNotDisposed();
+        ct.ThrowIfCancellationRequested();
 
-    public Task UpdateAsync(RedisInterviewDocument entity, CancellationToken ct = default)
-    {
-        return QueueSaveAsync(entity, ct);
+        _pendingMutations.Add(new PendingRedisMutation(
+            _ => redisConnectionProvider.Connection.SetAsync(entity),
+            IgnoreFailure: false));
+
+        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(Guid id, CancellationToken ct = default)
@@ -39,8 +41,9 @@ public sealed class RedisInterviewStorage(IRedisConnectionProvider redisConnecti
         return QueueDeleteAsync(id, ignoreFailure: false, ct);
     }
 
-    public Task DeleteBestEffortAsync(Guid id, CancellationToken ct = default)
+    public Task QueueBestEffortDeleteAsync(Guid id, CancellationToken ct = default)
     {
+        // Redis cleanup should not fail an operation after the archive write has succeeded.
         return QueueDeleteAsync(id, ignoreFailure: true, ct);
     }
 
@@ -103,19 +106,6 @@ public sealed class RedisInterviewStorage(IRedisConnectionProvider redisConnecti
 
         await SaveChangesAsync();
         _disposed = true;
-    }
-
-    private Task QueueSaveAsync(RedisInterviewDocument entity, CancellationToken ct)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-        EnsureNotDisposed();
-        ct.ThrowIfCancellationRequested();
-
-        _pendingMutations.Add(new PendingRedisMutation(
-            _ => redisConnectionProvider.Connection.SetAsync(entity),
-            IgnoreFailure: false));
-
-        return Task.CompletedTask;
     }
 
     private Task QueueDeleteAsync(Guid id, bool ignoreFailure, CancellationToken ct)

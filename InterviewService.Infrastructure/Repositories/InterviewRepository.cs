@@ -1,11 +1,13 @@
+using System.Text.Json;
 using AutoMapper;
-using InterviewService.Application.Abstractions;
 using InterviewService.Application.Abstractions.Repositories;
 using InterviewService.Core.Entities;
 using InterviewService.Core.Models;
+using InterviewService.Infrastructure.Abstractions;
 using InterviewService.Infrastructure.Models;
-using InterviewService.Infrastructure.Serialization;
-using InterviewService.Infrastructure.Stores;
+using InterviewService.Infrastructure.Models.Serialization;
+using InterviewService.Infrastructure.Options;
+using Microsoft.Extensions.Options;
 
 namespace InterviewService.Infrastructure.Repositories;
 
@@ -13,12 +15,15 @@ namespace InterviewService.Infrastructure.Repositories;
 /// Domain interview repository that composes Redis active storage and PostgreSQL archive storage.
 /// </summary>
 public sealed class InterviewRepository(
-    RedisInterviewStorage redisStorage,
-    PostgresInterviewStorage postgresStorage,
+    IActiveInterviewStorage redisStorage,
+    IArchivedInterviewStorage postgresStorage,
     IInterviewSetupRepository interviewSetupRepository,
     IMapper mapper,
+    IOptions<InfrastructureJsonOptions> jsonOptions,
     TimeProvider timeProvider) : IInterviewRepository
 {
+    private readonly JsonSerializerOptions _serializerOptions = jsonOptions.Value.SerializerOptions;
+
     public async Task<Interview?> GetAsync(Guid id, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
@@ -40,7 +45,7 @@ public sealed class InterviewRepository(
         {
             var cacheDocument = mapper.Map<RedisInterviewDocument>(interview);
             cacheDocument.LastTouchedAt = timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
-            await redisStorage.SetAsync(cacheDocument, ct);
+            await redisStorage.StoreAsync(cacheDocument, ct);
         }
 
         return interview;
@@ -63,7 +68,7 @@ public sealed class InterviewRepository(
 
         var document = mapper.Map<RedisInterviewDocument>(entity);
         document.LastTouchedAt = timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
-        await redisStorage.SetAsync(document, ct);
+        await redisStorage.StoreAsync(document, ct);
     }
 
     public async Task UpdateAsync(Interview entity, CancellationToken ct = default)
@@ -86,14 +91,14 @@ public sealed class InterviewRepository(
 
         if (!entity.IsFinished)
         {
-            await redisStorage.UpdateAsync(document, ct);
+            await redisStorage.StoreAsync(document, ct);
             return;
         }
 
-        var postgresDto = mapper.Map<PostgresInterviewDto>(entity);
-        await postgresStorage.UpsertAsync(postgresDto, ct);
-        await redisStorage.UpdateAsync(document, ct);
-        await redisStorage.DeleteBestEffortAsync(entity.Id, ct);
+        var postgresDto = CreatePostgresDto(entity);
+        await postgresStorage.ArchiveAsync(postgresDto, ct);
+        await redisStorage.StoreAsync(document, ct);
+        await redisStorage.QueueBestEffortDeleteAsync(entity.Id, ct);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct = default)
@@ -122,6 +127,7 @@ public sealed class InterviewRepository(
         await redisStorage.DisposeAsync();
     }
 
+    //why this is not done with a mapper?
     private async Task<Interview> CreateInterviewFromRedisDocumentAsync(
         RedisInterviewDocument document,
         CancellationToken ct)
@@ -139,16 +145,58 @@ public sealed class InterviewRepository(
             setup);
     }
 
-    private static Interview CreateInterviewFromPostgresDto(PostgresInterviewDto dto)
+    //why this is not done with a mapper?
+    private Interview CreateInterviewFromPostgresDto(PostgresInterviewDto dto)
     {
         var storedSetup = dto.Setup is null
             ? throw new KeyNotFoundException($"Interview setup '{dto.SetupId}' was not loaded.")
-            : InterviewPersistencePayloadSerializer.DeserializeInterviewSetup(dto.Setup.Id, dto.Setup.PayloadJson);
+            : DeserializeInterviewSetup(dto.Setup.Id, dto.Setup.PayloadJson);
 
-        return InterviewPersistencePayloadSerializer.DeserializeInterview(
+        var payload = JsonSerializer.Deserialize<InterviewPayload>(dto.PayloadJson, _serializerOptions)
+                      ?? throw new InvalidOperationException(
+                          $"Interview '{dto.Id}' payload could not be deserialized.");
+
+        return new Interview(
             dto.Id,
-            dto.PayloadJson,
+            payload.RequiredAnswers,
+            payload.CompletedDynamicSteps,
+            payload.CurrentQuestion,
+            payload.Conclusion,
             storedSetup);
+    }
+
+    private PostgresInterviewDto CreatePostgresDto(Interview interview)
+    {
+        return new PostgresInterviewDto
+        {
+            Id = interview.Id,
+            SetupId = interview.Setup.Id,
+            PayloadJson = JsonSerializer.Serialize(
+                new InterviewPayload
+                {
+                    RequiredAnswers = interview.RequiredAnswers.ToList(),
+                    CompletedDynamicSteps = interview.CompletedDynamicSteps.ToList(),
+                    CurrentQuestion = interview.CurrentQuestion,
+                    Conclusion = interview.Conclusion,
+                },
+                _serializerOptions),
+        };
+    }
+
+    private InterviewSetup DeserializeInterviewSetup(Guid setupId, string payloadJson)
+    {
+        var payload = JsonSerializer.Deserialize<InterviewSetupPayload>(payloadJson, _serializerOptions)
+                      ?? throw new InvalidOperationException(
+                          $"Interview setup '{setupId}' payload could not be deserialized.");
+
+        var setup = new InterviewSetup(payload.GroupName, payload.RequiredQuestions);
+        if (setup.Id != setupId)
+        {
+            throw new InvalidOperationException(
+                $"Interview setup '{setupId}' payload hash does not match computed id '{setup.Id}'.");
+        }
+
+        return setup;
     }
 
 }

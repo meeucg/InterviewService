@@ -1,6 +1,7 @@
 using InterviewService.Application.Abstractions;
 using InterviewService.Application.Abstractions.Repositories;
 using InterviewService.Application.Abstractions.Utilities;
+using InterviewService.Infrastructure.Abstractions;
 using InterviewService.Infrastructure.Data;
 using InterviewService.Infrastructure.Options;
 using InterviewService.Infrastructure.Repositories;
@@ -45,10 +46,13 @@ public static class InterviewInfrastructureServiceCollectionExtensions
 
         services.AddOptions<InterviewArchivingOptions>()
             .Bind(configuration.GetSection(InterviewArchivingOptions.SectionName));
+        services.AddOptions<InfrastructureJsonOptions>();
 
         services.AddScoped<RedisInterviewStorage>();
+        services.AddScoped<IActiveInterviewStorage>(provider => provider.GetRequiredService<RedisInterviewStorage>());
         services.AddScoped<RedisInterviewSetupStorage>();
         services.AddScoped<PostgresInterviewStorage>();
+        services.AddScoped<IArchivedInterviewStorage>(provider => provider.GetRequiredService<PostgresInterviewStorage>());
         services.AddScoped<PostgresInterviewSetupStorage>();
         services.AddScoped<InfrastructureStartup>();
         services.AddScoped<IInterviewSetupRepository, InterviewSetupRepository>();

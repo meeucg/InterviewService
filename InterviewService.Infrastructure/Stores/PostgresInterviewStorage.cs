@@ -1,7 +1,6 @@
 using AutoMapper;
-using InterviewService.Application.Abstractions;
-using InterviewService.Application.Abstractions.Repositories;
 using InterviewService.Infrastructure.Data;
+using InterviewService.Infrastructure.Abstractions;
 using InterviewService.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,7 +11,7 @@ namespace InterviewService.Infrastructure.Stores;
 /// </summary>
 public sealed class PostgresInterviewStorage(
     InterviewServiceDbContext dbContext,
-    IMapper mapper) : IRepository<PostgresInterviewDto>
+    IMapper mapper) : IArchivedInterviewStorage
 {
     private bool _disposed;
     private bool _hasPendingChanges;
@@ -27,26 +26,7 @@ public sealed class PostgresInterviewStorage(
             .SingleOrDefaultAsync(x => x.Id == id, ct);
     }
 
-    public async Task SetAsync(PostgresInterviewDto entity, CancellationToken ct = default)
-    {
-        ArgumentNullException.ThrowIfNull(entity);
-        EnsureNotDisposed();
-
-        if (await dbContext.Interviews.AnyAsync(x => x.Id == entity.Id, ct))
-        {
-            throw new InvalidOperationException($"Interview '{entity.Id}' already exists in PostgreSQL.");
-        }
-
-        dbContext.Interviews.Add(entity);
-        _hasPendingChanges = true;
-    }
-
-    public Task UpdateAsync(PostgresInterviewDto entity, CancellationToken ct = default)
-    {
-        return UpsertAsync(entity, ct);
-    }
-
-    public async Task UpsertAsync(PostgresInterviewDto entity, CancellationToken ct = default)
+    public async Task ArchiveAsync(PostgresInterviewDto entity, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(entity);
         EnsureNotDisposed();

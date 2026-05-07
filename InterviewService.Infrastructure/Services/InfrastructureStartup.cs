@@ -1,5 +1,5 @@
 using InterviewService.Application.Abstractions.Repositories;
-using InterviewService.Application.Setups;
+using InterviewService.Application.Abstractions.Setups;
 using InterviewService.Infrastructure.Data;
 using InterviewService.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +14,7 @@ namespace InterviewService.Infrastructure.Services;
 public sealed class InfrastructureStartup(
     InterviewServiceDbContext dbContext,
     IRedisConnectionProvider redisConnectionProvider,
+    IInterviewSetupCatalog setupCatalog,
     IInterviewSetupRepository setupRepository)
 {
     public async Task InitializeAsync(CancellationToken ct = default)
@@ -23,16 +24,9 @@ public sealed class InfrastructureStartup(
         await EnsureRedisIndexAsync(typeof(RedisInterviewDocument));
         await EnsureRedisIndexAsync(typeof(RedisInterviewSetupDocument));
 
-        foreach (var setup in InterviewSetupCatalog.RequiredSetups)
+        foreach (var setup in setupCatalog.Setups.Values)
         {
-            try
-            {
-                await setupRepository.SetAsync(setup, ct);
-            }
-            catch (InvalidOperationException)
-            {
-                //ignore
-            }
+            await setupRepository.SetAsync(setup, ct);
         }
 
         await setupRepository.SaveChangesAsync();
@@ -51,7 +45,7 @@ public sealed class InfrastructureStartup(
         }
         catch
         {
-            //ignore
+            // The index may not exist yet; creation below is the desired end state.
         }
 
         await redisConnectionProvider.Connection.CreateIndexAsync(documentType);

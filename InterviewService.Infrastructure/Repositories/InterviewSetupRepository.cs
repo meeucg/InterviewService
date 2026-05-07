@@ -1,10 +1,12 @@
+using System.Text.Json;
 using AutoMapper;
-using InterviewService.Application.Abstractions;
 using InterviewService.Application.Abstractions.Repositories;
 using InterviewService.Core.Entities;
 using InterviewService.Infrastructure.Models;
-using InterviewService.Infrastructure.Serialization;
+using InterviewService.Infrastructure.Models.Serialization;
+using InterviewService.Infrastructure.Options;
 using InterviewService.Infrastructure.Stores;
+using Microsoft.Extensions.Options;
 
 namespace InterviewService.Infrastructure.Repositories;
 
@@ -14,8 +16,11 @@ namespace InterviewService.Infrastructure.Repositories;
 public sealed class InterviewSetupRepository(
     RedisInterviewSetupStorage redisStorage,
     PostgresInterviewSetupStorage postgresStorage,
-    IMapper mapper) : IInterviewSetupRepository
+    IMapper mapper,
+    IOptions<InfrastructureJsonOptions> jsonOptions) : IInterviewSetupRepository
 {
+    private readonly JsonSerializerOptions _serializerOptions = jsonOptions.Value.SerializerOptions;
+
     public async Task<InterviewSetup?> GetAsync(Guid id, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
@@ -32,9 +37,7 @@ public sealed class InterviewSetupRepository(
             return null;
         }
 
-        var setup = InterviewPersistencePayloadSerializer.DeserializeInterviewSetup(
-            storedDto.Id,
-            storedDto.PayloadJson);
+        var setup = DeserializeInterviewSetup(storedDto.Id, storedDto.PayloadJson);
         await redisStorage.SetAsync(mapper.Map<RedisInterviewSetupDocument>(setup), ct);
         return setup;
     }
@@ -44,7 +47,7 @@ public sealed class InterviewSetupRepository(
         ArgumentNullException.ThrowIfNull(entity);
         ct.ThrowIfCancellationRequested();
 
-        await postgresStorage.UpsertAsync(mapper.Map<PostgresInterviewSetupDto>(entity), ct);
+        await postgresStorage.SetAsync(CreatePostgresDto(entity), ct);
         await redisStorage.SetAsync(mapper.Map<RedisInterviewSetupDocument>(entity), ct);
     }
 
@@ -80,6 +83,38 @@ public sealed class InterviewSetupRepository(
         {
             throw new InvalidOperationException(
                 $"Interview setup '{document.Id}' Redis payload hash does not match computed id '{setup.Id}'.");
+        }
+
+        return setup;
+    }
+
+    private PostgresInterviewSetupDto CreatePostgresDto(InterviewSetup setup)
+    {
+        return new PostgresInterviewSetupDto
+        {
+            Id = setup.Id,
+            GroupName = setup.GroupName,
+            PayloadJson = JsonSerializer.Serialize(
+                new InterviewSetupPayload
+                {
+                    GroupName = setup.GroupName,
+                    RequiredQuestions = setup.RequiredQuestions.ToList(),
+                },
+                _serializerOptions),
+        };
+    }
+
+    private InterviewSetup DeserializeInterviewSetup(Guid setupId, string payloadJson)
+    {
+        var payload = JsonSerializer.Deserialize<InterviewSetupPayload>(payloadJson, _serializerOptions)
+                      ?? throw new InvalidOperationException(
+                          $"Interview setup '{setupId}' payload could not be deserialized.");
+
+        var setup = new InterviewSetup(payload.GroupName, payload.RequiredQuestions);
+        if (setup.Id != setupId)
+        {
+            throw new InvalidOperationException(
+                $"Interview setup '{setupId}' payload hash does not match computed id '{setup.Id}'.");
         }
 
         return setup;

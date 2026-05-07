@@ -1,29 +1,24 @@
-using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using InterviewService.Application.Abstractions.Setups;
 using InterviewService.Core.Entities;
 using InterviewService.Core.Models;
 
 namespace InterviewService.Application.Setups;
 
 /// <summary>
-/// Loads required setup definitions from embedded application JSON and exposes the default setup.
+/// Loads setup definitions from embedded application JSON.
 /// </summary>
-public static class InterviewSetupCatalog
+public sealed class InterviewSetupCatalog : IInterviewSetupCatalog
 {
-    public const string GeneralGroupName = "general";
-    private const string ResourceName = "InterviewService.Application.Setups.interview-setups.json";
+    private const string ResourceName = "InterviewService.Application.Services.Setups.interview-setups.json";
 
-    private static readonly Lazy<IReadOnlyDictionary<string, InterviewSetup>> LazySetups = new(LoadSetups);
+    private readonly Lazy<IReadOnlyDictionary<string, InterviewSetup>> _lazySetups = new(LoadSetups);
 
-    public static IReadOnlyDictionary<string, InterviewSetup> Setups => LazySetups.Value;
+    public IReadOnlyDictionary<string, InterviewSetup> Setups => _lazySetups.Value;
 
-    public static InterviewSetup Default => GetByGroupName(GeneralGroupName);
-
-    public static IReadOnlyCollection<InterviewSetup> RequiredSetups => Setups.Values.ToArray();
-
-    public static InterviewSetup GetByGroupName(string groupName)
+    public InterviewSetup GetByGroupName(string groupName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(groupName);
 
@@ -35,7 +30,7 @@ public static class InterviewSetupCatalog
         throw new KeyNotFoundException($"Interview setup group '{groupName}' was not found in catalog.");
     }
 
-    private static IReadOnlyDictionary<string, InterviewSetup> LoadSetups()
+    private static Dictionary<string, InterviewSetup> LoadSetups()
     {
         var assembly = typeof(InterviewSetupCatalog).Assembly;
         using var stream = assembly.GetManifestResourceStream(ResourceName)

@@ -5,8 +5,8 @@ Generated from production source XML summary comments. Testing-only projects and
 ## Architecture
 
 - `InterviewGrpcContracts` contains the public protobuf/gRPC contract package.
-- `InterviewService.Core` contains domain entities, value models, setup identity rules, and prompt marker types.
-- `InterviewService.Application` contains use cases, repository contracts, prompt rendering, setup catalog loading, AI request building, and converter routing.
+- `InterviewService.Core` contains domain entities, value models, setup identity rules, and prompt base types.
+- `InterviewService.Application` contains group-specific use cases, prompt rendering, setup catalog loading, AI validators, and repository contracts.
 - `InterviewService.Infrastructure` contains PostgreSQL, Redis OM, EF migrations, storage implementations, startup initialization, locking, and archival.
 - `InterviewService.Api` is the deployable gRPC host and composition root.
 
@@ -59,18 +59,6 @@ Source: `InterviewService.Core/Models/Domain.cs`
 Represents the next interview UI element: either a question or the final user profile.
 
 Source: `InterviewService.Core/Models/FormElement.cs`
-
-### `public record InterviewPrompt`
-
-Prompt marker for interview prompt templates and their parameter type.
-
-Source: `InterviewService.Core/Models/InterviewPrompt.cs`
-
-### `public record InterviewPromptParameters`
-
-Parameters rendered into an interview prompt before sending it to the text AI service.
-
-Source: `InterviewService.Core/Models/InterviewPromptParameters.cs`
 
 ### `public record InterviewStep`
 
@@ -128,30 +116,6 @@ Source: `InterviewService.Core/Models/UserProfile.cs`
 
 ## Application
 
-### `public interface IInterviewAiConverter`
-
-Routes an interview in a setup group into a concrete AI request.
-
-Source: `InterviewService.Application/Abstractions/Converters/IInterviewAiConverter.cs`
-
-### `public interface IInterviewAiConverterFactory`
-
-Resolves interview AI converters by setup group name.
-
-Source: `InterviewService.Application/Abstractions/Converters/IInterviewAiConverterFactory.cs`
-
-### `public interface IInterviewAiRequestBuilder`
-
-Builds text AI requests from prompt names and interview state.
-
-Source: `InterviewService.Application/Abstractions/Converters/IInterviewAiRequestBuilder.cs`
-
-### `public interface IInterviewPromptParametersFactory`
-
-Builds prompt parameters from an interview transcript and schema information.
-
-Source: `InterviewService.Application/Abstractions/Prompts/IInterviewPromptParametersFactory.cs`
-
 ### `public interface IPromptRenderer`
 
 Renders strongly typed prompt templates into final prompt text.
@@ -182,11 +146,23 @@ Generic repository contract with unit-of-work commit semantics.
 
 Source: `InterviewService.Application/Abstractions/Repositories/IRepository.cs`
 
+### `public interface IInterviewSetupCatalog`
+
+Provides interview setup definitions loaded by the application layer.
+
+Source: `InterviewService.Application/Abstractions/Setups/IInterviewSetupCatalog.cs`
+
 ### `public interface IInterviewUseCase`
 
-Application facade for creating interviews, submitting answers, and reading the next step.
+Application facade for one interview setup group, covering creation, answer submission, and next-step lookup.
 
 Source: `InterviewService.Application/Abstractions/UseCases/IInterviewUseCase.cs`
+
+### `public interface IInterviewUseCaseFactory`
+
+Resolves interview use cases by setup group name and exposes the current default use case.
+
+Source: `InterviewService.Application/Abstractions/UseCases/IInterviewUseCaseFactory.cs`
 
 ### `public interface IInterviewLockProvider`
 
@@ -202,7 +178,7 @@ Source: `InterviewService.Application/Abstractions/Utilities/IUnitOfWork.cs`
 
 ### `public static class InterviewApplicationServiceCollectionExtensions`
 
-Registers application-layer services, prompt services, AI converters, and use cases.
+Registers application-layer services, prompt services, AI validators, and use cases.
 
 Source: `InterviewService.Application/DependencyInjection/InterviewApplicationServiceCollectionExtensions.cs`
 
@@ -210,43 +186,31 @@ Source: `InterviewService.Application/DependencyInjection/InterviewApplicationSe
 
 Reads embedded prompt template files from the Application assembly.
 
-Source: `InterviewService.Application/Services/ApplicationEmbeddedPromptTemplateTextReader.cs`
-
-### `public sealed class GeneralSetupConverter`
-
-Routes general setup interviews to IT or design prompt templates based on the cluster answer.
-
-Source: `InterviewService.Application/Services/GeneralSetupConverter.cs`
-
-### `public sealed class InterviewAiConverterFactory`
-
-Default implementation that indexes converters by setup group name.
-
-Source: `InterviewService.Application/Services/InterviewAiConverterFactory.cs`
-
-### `public sealed class InterviewAiRequestBuilder`
-
-Default AI request builder that renders prompts and appends interview transcript chat history.
-
-Source: `InterviewService.Application/Services/InterviewAiRequestBuilder.cs`
-
-### `public class InterviewPromptParametersFactory`
-
-Creates prompt parameters from interview setup, transcript, schemas, and required-step context.
-
-Source: `InterviewService.Application/Services/InterviewPromptParametersFactory.cs`
-
-### `public sealed class InterviewUseCase`
-
-Coordinates interview creation, atomic answer handling, AI next-step generation, and read-only step lookup.
-
-Source: `InterviewService.Application/Services/InterviewUseCase.cs`
+Source: `InterviewService.Application/Services/Prompts/ApplicationEmbeddedPromptTemplateTextReader.cs`
 
 ### `public sealed class PromptRenderer`
 
 Renders prompt templates with Scriban using strongly typed parameter objects.
 
-Source: `InterviewService.Application/Services/PromptRenderer.cs`
+Source: `InterviewService.Application/Services/Prompts/PromptRenderer.cs`
+
+### `public sealed class InterviewSetupCatalog`
+
+Loads setup definitions from embedded application JSON.
+
+Source: `InterviewService.Application/Services/Setups/InterviewSetupCatalog.cs`
+
+### `public sealed class GeneralInterviewUseCase`
+
+Use case for the general setup group, including prompt selection and AI next-step generation.
+
+Source: `InterviewService.Application/Services/UseCases/GeneralInterviewUseCase.cs`
+
+### `public sealed class InterviewUseCaseFactory`
+
+Default implementation that indexes interview use cases by setup group name.
+
+Source: `InterviewService.Application/Services/UseCases/InterviewUseCaseFactory.cs`
 
 ### `public sealed class AnswerAiValidator`
 
@@ -260,13 +224,37 @@ Validates AI-generated form elements before they become interview questions or c
 
 Source: `InterviewService.Application/Services/Validators/FormElementAiValidator.cs`
 
-### `public static class InterviewSetupCatalog`
+### `internal static class InterviewAiValidationRules`
 
-Loads required setup definitions from embedded application JSON and exposes the default setup.
+Shared validation rules for AI-generated interview payloads.
 
-Source: `InterviewService.Application/Setups/InterviewSetupCatalog.cs`
+Source: `InterviewService.Application/Services/Validators/InterviewAiValidationRules.cs`
+
+### `public sealed class QuestionAiValidator`
+
+Validates AI-generated question payloads before they are accepted by the AI services pipeline.
+
+Source: `InterviewService.Application/Services/Validators/QuestionAiValidator.cs`
+
+### `public sealed class UserProfileAiValidator`
+
+Validates AI-generated user profiles before they are accepted by the AI services pipeline.
+
+Source: `InterviewService.Application/Services/Validators/UserProfileAiValidator.cs`
 
 ## Infrastructure
+
+### `public interface IActiveInterviewStorage`
+
+Storage contract for active interview documents kept in Redis.
+
+Source: `InterviewService.Infrastructure/Abstractions/IActiveInterviewStorage.cs`
+
+### `public interface IArchivedInterviewStorage`
+
+Storage contract for archived interview DTOs kept in PostgreSQL.
+
+Source: `InterviewService.Infrastructure/Abstractions/IArchivedInterviewStorage.cs`
 
 ### `public sealed class InterviewServiceDbContext`
 
@@ -310,6 +298,24 @@ Redis OM document for cached immutable interview setup state.
 
 Source: `InterviewService.Infrastructure/Models/RedisInterviewSetupDocument.cs`
 
+### `internal sealed record InterviewPayload`
+
+JSON payload shape for persisted interview aggregate state.
+
+Source: `InterviewService.Infrastructure/Models/Serialization/InterviewPayload.cs`
+
+### `internal sealed record InterviewSetupPayload`
+
+JSON payload shape for persisted immutable interview setup state.
+
+Source: `InterviewService.Infrastructure/Models/Serialization/InterviewSetupPayload.cs`
+
+### `public sealed class InfrastructureJsonOptions`
+
+Configures JSON serializer settings for infrastructure persistence payloads.
+
+Source: `InterviewService.Infrastructure/Options/InfrastructureJsonOptions.cs`
+
 ### `public sealed class InterviewArchivingOptions`
 
 Configures inactivity threshold and sweep cadence for Redis-to-PostgreSQL archival.
@@ -333,12 +339,6 @@ Source: `InterviewService.Infrastructure/Repositories/InterviewRepository.cs`
 Domain setup repository that keeps PostgreSQL as source of truth and warms Redis cache.
 
 Source: `InterviewService.Infrastructure/Repositories/InterviewSetupRepository.cs`
-
-### `public static class InfrastructureJson`
-
-Shared JSON serializer settings for infrastructure persistence payloads.
-
-Source: `InterviewService.Infrastructure/Serialization/InfrastructureJson.cs`
 
 ### `public sealed class InfrastructureStartup`
 

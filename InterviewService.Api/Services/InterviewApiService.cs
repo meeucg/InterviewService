@@ -1,7 +1,6 @@
 using AutoMapper;
 using FitFlow.Interview.Grpc.Contracts;
 using Grpc.Core;
-using InterviewService.Application.Abstractions;
 using InterviewService.Application.Abstractions.Repositories;
 using InterviewService.Application.Abstractions.UseCases;
 
@@ -11,7 +10,7 @@ namespace InterviewService.Api.Services;
 /// gRPC endpoint implementation for creating interviews, answering questions, and reading interview results.
 /// </summary>
 public class InterviewApiService(
-    IInterviewUseCase interviewUseCase,
+    IInterviewUseCaseFactory interviewUseCaseFactory,
     IInterviewRepository interviewRepository,
     IMapper mapper) : InterviewGateway.InterviewGatewayBase
 {
@@ -19,6 +18,7 @@ public class InterviewApiService(
         CreateNewInterviewRequest request,
         ServerCallContext context)
     {
+        var interviewUseCase = interviewUseCaseFactory.GetDefaultUseCase();
         var interview = await interviewUseCase.CreateNewInterviewAsync(context.CancellationToken);
 
         return new InterviewDisplayReply
@@ -84,6 +84,7 @@ public class InterviewApiService(
         InterviewService.Core.Models.FormElement? result;
         try
         {
+            var interviewUseCase = interviewUseCaseFactory.GetDefaultUseCase();
             await interviewUseCase.SubmitAnswerAsync(
                 interviewId,
                 mapper.Map<InterviewService.Core.Models.Answer>(request.Answer),

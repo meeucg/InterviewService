@@ -8,7 +8,7 @@ The service exposes a stable gRPC contract, keeps active interviews in Redis, ar
 
 - `InterviewGrpcContracts`: public `.proto` contract and generated gRPC models.
 - `InterviewService.Core`: domain entities and models.
-- `InterviewService.Application`: use cases, prompt rendering, AI request building, setup catalog, and repository contracts.
+- `InterviewService.Application`: group-specific use cases, prompt rendering, setup catalog, AI validation, and repository contracts.
 - `InterviewService.Infrastructure`: EF Core, PostgreSQL, Redis OM, migrations, storage, locking, startup, and archiving.
 - `InterviewService.Api`: deployable gRPC host and DI composition root.
 
