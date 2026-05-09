@@ -6,7 +6,7 @@ namespace InterviewService.Infrastructure.Models;
 /// <summary>
 /// Redis OM document for active or not-yet-archived interview state.
 /// </summary>
-[Document(StorageType = StorageType.Json, Prefixes = ["interviews:v4:active"])]
+[Document(StorageType = StorageType.Json, Prefixes = ["interviews:v5:active"])]
 public sealed class RedisInterviewDocument
 {
     [RedisIdField]
@@ -14,7 +14,7 @@ public sealed class RedisInterviewDocument
     public Guid Id { get; set; }
 
     [Indexed]
-    public Guid SetupId { get; set; }
+    public Guid SetupHashGuid { get; set; }
 
     public List<Answer> RequiredAnswers { get; set; } = [];
 

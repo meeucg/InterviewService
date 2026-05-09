@@ -4,17 +4,6 @@ services:
     build:
       context: .
       dockerfile: InterviewService.Api/Dockerfile
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Redis: interview-redis:6379
-      ConnectionStrings__Postgres: Host=interview-postgres;Port=5432;Database=fitflow_interviews;Username=postgres;Password=postgres
-      TextAI__ApiEndpoint: ${TEXTAI_API_ENDPOINT:-https://polza.ai/api/v1}
-      TextAI__ApiKey: ${TEXTAI_API_KEY:-}
-      AIModels__defaultModel__modelAlias: ${INTERVIEWER_MODEL_ALIAS:-Grok 4.20}
-      AIModels__defaultModel__modelName: ${INTERVIEWER_MODEL_NAME:-x-ai/grok-4.20}
-      AIModels__defaultModel__supportsJsonOutput: "true"
-      AIModels__defaultModel__supportsFunctionCalling: ${INTERVIEWER_MODEL_SUPPORTS_FUNCTION_CALLING:-false}
     ports:
       - "7297:8080"
     depends_on:

@@ -21,14 +21,7 @@ The service exposes a stable gRPC contract, keeps active interviews in Redis, ar
 
 ## Configuration
 
-Secrets are intentionally not committed. Provide them through environment variables or local `appsettings*.json` files ignored by Git.
-
-```powershell
-$env:TEXTAI_API_ENDPOINT = "https://polza.ai/api/v1"
-$env:TEXTAI_API_KEY = "<your-api-key>"
-$env:INTERVIEWER_MODEL_ALIAS = "Grok 4.20"
-$env:INTERVIEWER_MODEL_NAME = "x-ai/grok-4.20"
-```
+Secrets are intentionally not committed. Committed `appsettings*.json` files use masked placeholders for secret values. Provide the Text AI API key through user secrets, environment variables, or a local uncommitted override before running the API.
 
 Docker Compose also accepts:
 
@@ -37,6 +30,8 @@ $env:INTERVIEW_POSTGRES_PORT = "55432"
 $env:INTERVIEW_REDIS_PORT = "56379"
 $env:INTERVIEW_REDIS_UI_PORT = "58001"
 ```
+
+Non-secret service configuration, model aliases, retry settings, and default container connection strings live in `InterviewService.Api/appsettings.json`. Local development overrides, such as localhost database and Redis connection strings for the compose-exposed ports, live in `InterviewService.Api/appsettings.Development.json`.
 
 ## Quick Start With Docker
 
@@ -67,8 +62,6 @@ docker compose up interview-postgres interview-redis
 Run the API locally:
 
 ```powershell
-$env:ConnectionStrings__Postgres = "Host=localhost;Port=55432;Database=fitflow_interviews;Username=postgres;Password=postgres"
-$env:ConnectionStrings__Redis = "localhost:56379"
 dotnet run --project .\InterviewService.Api\InterviewService.Api.csproj
 ```
 

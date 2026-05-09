@@ -92,7 +92,8 @@ public sealed class InterviewArchiver(
         var interviewLockProvider = scope.ServiceProvider.GetRequiredService<IInterviewLockProvider>();
 
         var staleBefore = timeProvider.GetUtcNow() - _options.InactiveAfter;
-        var documents = await redisStorage.GetArchivableInterviewsAsync(staleBefore, _options.BatchSize, ct);
+        var documents =
+            await redisStorage.GetArchivableInterviewsAsync(staleBefore, _options.BatchSize, ct);
 
         foreach (var document in documents)
         {
@@ -123,7 +124,7 @@ public sealed class InterviewArchiver(
         return new PostgresInterviewDto
         {
             Id = document.Id,
-            SetupId = document.SetupId,
+            SetupHashGuid = document.SetupHashGuid,
             PayloadJson = JsonSerializer.Serialize(
                 new InterviewPayload
                 {

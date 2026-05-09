@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>FitFlow.Interview.Grpc.Contracts</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>FitFlow</Authors>
     <Description>Compiled gRPC contracts for Interview microservices.</Description>
   </PropertyGroup>

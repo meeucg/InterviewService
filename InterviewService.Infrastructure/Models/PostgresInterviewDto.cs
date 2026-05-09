@@ -9,7 +9,7 @@ public sealed class PostgresInterviewDto
 {
     public Guid Id { get; set; }
 
-    public Guid SetupId { get; set; }
+    public Guid SetupHashGuid { get; set; }
 
     public PostgresInterviewSetupDto? Setup { get; set; }
 

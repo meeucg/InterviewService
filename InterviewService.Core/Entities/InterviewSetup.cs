@@ -4,7 +4,7 @@ using InterviewService.Core.Models;
 namespace InterviewService.Core.Entities;
 
 /// <summary>
-/// Immutable interview setup version identified by a content hash and grouped by a stable business name.
+/// Immutable interview setup version identified by a content hash GUID and grouped by a stable business name.
 /// </summary>
 public sealed class InterviewSetup
 {
@@ -15,10 +15,10 @@ public sealed class InterviewSetup
 
         GroupName = groupName.Trim();
         RequiredQuestions = requiredQuestions.ToArray();
-        Id = InterviewSetupIdentity.ComputeId(GroupName, RequiredQuestions);
+        HashGuid = InterviewSetupIdentity.ComputeHashGuid(GroupName, RequiredQuestions);
     }
 
-    public Guid Id { get; }
+    public Guid HashGuid { get; }
 
     public string GroupName { get; }
 

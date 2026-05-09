@@ -132,9 +132,9 @@ public sealed class InterviewRepository(
         RedisInterviewDocument document,
         CancellationToken ct)
     {
-        var setupId = document.SetupId;
-        var setup = await interviewSetupRepository.GetAsync(setupId, ct)
-                    ?? throw new KeyNotFoundException($"Interview setup '{setupId}' was not found.");
+        var setupHashGuid = document.SetupHashGuid;
+        var setup = await interviewSetupRepository.GetAsync(setupHashGuid, ct)
+                    ?? throw new KeyNotFoundException($"Interview setup '{setupHashGuid}' was not found.");
 
         return new Interview(
             document.Id,
@@ -149,8 +149,8 @@ public sealed class InterviewRepository(
     private Interview CreateInterviewFromPostgresDto(PostgresInterviewDto dto)
     {
         var storedSetup = dto.Setup is null
-            ? throw new KeyNotFoundException($"Interview setup '{dto.SetupId}' was not loaded.")
-            : DeserializeInterviewSetup(dto.Setup.Id, dto.Setup.PayloadJson);
+            ? throw new KeyNotFoundException($"Interview setup '{dto.SetupHashGuid}' was not loaded.")
+            : DeserializeInterviewSetup(dto.Setup.HashGuid, dto.Setup.PayloadJson);
 
         var payload = JsonSerializer.Deserialize<InterviewPayload>(dto.PayloadJson, _serializerOptions)
                       ?? throw new InvalidOperationException(
@@ -170,7 +170,7 @@ public sealed class InterviewRepository(
         return new PostgresInterviewDto
         {
             Id = interview.Id,
-            SetupId = interview.Setup.Id,
+            SetupHashGuid = interview.Setup.HashGuid,
             PayloadJson = JsonSerializer.Serialize(
                 new InterviewPayload
                 {
@@ -183,17 +183,17 @@ public sealed class InterviewRepository(
         };
     }
 
-    private InterviewSetup DeserializeInterviewSetup(Guid setupId, string payloadJson)
+    private InterviewSetup DeserializeInterviewSetup(Guid setupHashGuid, string payloadJson)
     {
         var payload = JsonSerializer.Deserialize<InterviewSetupPayload>(payloadJson, _serializerOptions)
                       ?? throw new InvalidOperationException(
-                          $"Interview setup '{setupId}' payload could not be deserialized.");
+                          $"Interview setup '{setupHashGuid}' payload could not be deserialized.");
 
         var setup = new InterviewSetup(payload.GroupName, payload.RequiredQuestions);
-        if (setup.Id != setupId)
+        if (setup.HashGuid != setupHashGuid)
         {
             throw new InvalidOperationException(
-                $"Interview setup '{setupId}' payload hash does not match computed id '{setup.Id}'.");
+                $"Interview setup '{setupHashGuid}' payload hash does not match computed hash GUID '{setup.HashGuid}'.");
         }
 
         return setup;

@@ -7,7 +7,7 @@ namespace InterviewService.Infrastructure.Models;
 /// </summary>
 public sealed class PostgresInterviewSetupDto
 {
-    public Guid Id { get; set; }
+    public Guid HashGuid { get; set; }
 
     [MaxLength(256)]
     public string GroupName { get; set; } = string.Empty;

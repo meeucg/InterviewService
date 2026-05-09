@@ -1,5 +1,3 @@
-using AutoMapper;
-using InterviewService.Application.Abstractions;
 using InterviewService.Application.Abstractions.Repositories;
 using InterviewService.Infrastructure.Data;
 using InterviewService.Infrastructure.Models;
@@ -13,25 +11,28 @@ namespace InterviewService.Infrastructure.Stores;
 public sealed class PostgresInterviewSetupStorage(
     InterviewServiceDbContext dbContext) : IRepository<PostgresInterviewSetupDto>
 {
+    private readonly List<PostgresInterviewSetupDto> _pendingSetups = [];
     private bool _disposed;
     private bool _hasPendingChanges;
 
-    public async Task<PostgresInterviewSetupDto?> GetAsync(Guid id, CancellationToken ct = default)
+    public async Task<PostgresInterviewSetupDto?> GetAsync(Guid hashGuid, CancellationToken ct = default)
     {
         EnsureNotDisposed();
 
         return await dbContext.InterviewSetups
             .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == id, ct);
+            .SingleOrDefaultAsync(x => x.HashGuid == hashGuid, ct);
     }
 
-    public async Task SetAsync(PostgresInterviewSetupDto entity, CancellationToken ct = default)
+    public Task SetAsync(PostgresInterviewSetupDto entity, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(entity);
         EnsureNotDisposed();
+        ct.ThrowIfCancellationRequested();
 
-        await dbContext.InterviewSetups.AddAsync(entity, ct);
+        _pendingSetups.Add(entity);
         _hasPendingChanges = true;
+        return Task.CompletedTask;
     }
 
     public Task UpdateAsync(PostgresInterviewSetupDto entity, CancellationToken ct = default)
@@ -39,11 +40,11 @@ public sealed class PostgresInterviewSetupStorage(
         throw new InvalidOperationException("Interview setup storage updates are not allowed.");
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    public async Task DeleteAsync(Guid hashGuid, CancellationToken ct = default)
     {
         EnsureNotDisposed();
 
-        var dto = await dbContext.InterviewSetups.SingleOrDefaultAsync(x => x.Id == id, ct);
+        var dto = await dbContext.InterviewSetups.SingleOrDefaultAsync(x => x.HashGuid == hashGuid, ct);
         if (dto is not null)
         {
             dbContext.InterviewSetups.Remove(dto);
@@ -59,8 +60,29 @@ public sealed class PostgresInterviewSetupStorage(
             return;
         }
 
-        await dbContext.SaveChangesAsync();
-        _hasPendingChanges = false;
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            foreach (var setup in _pendingSetups)
+            {
+                await dbContext.Database.ExecuteSqlInterpolatedAsync(
+                    $"""
+                     INSERT INTO interview_setups (hash_guid, group_name, payload_json)
+                     VALUES ({setup.HashGuid}, {setup.GroupName}, {setup.PayloadJson}::jsonb)
+                     ON CONFLICT (hash_guid) DO NOTHING
+                     """);
+            }
+
+            await dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+            _pendingSetups.Clear();
+            _hasPendingChanges = false;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async ValueTask DisposeAsync()
@@ -82,4 +104,5 @@ public sealed class PostgresInterviewSetupStorage(
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
     }
+
 }

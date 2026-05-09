@@ -28,7 +28,7 @@ public sealed class InterviewGrpcMappingProfile : Profile
             .ForMember(destination => destination.Id, options => options.MapFrom(source => source.Id.ToString()));
 
         CreateMap<CoreInterviewSetup, InterviewSetup>()
-            .ForMember(destination => destination.Id, options => options.MapFrom(source => source.Id.ToString()));
+            .ForMember(destination => destination.HashGuid, options => options.MapFrom(source => source.HashGuid.ToString()));
 
         CreateMap<CoreInterviewStep, InterviewStep>();
 

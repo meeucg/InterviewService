@@ -20,7 +20,6 @@ namespace InterviewService.Application.Services.UseCases;
 /// </summary>
 public sealed class GeneralInterviewUseCase(
     IInterviewRepository interviewRepository,
-    IInterviewSetupRepository interviewSetupRepository,
     IInterviewSetupCatalog setupCatalog,
     IInterviewLockProvider interviewLockProvider,
     ITextAI textAI,
@@ -39,10 +38,9 @@ public sealed class GeneralInterviewUseCase(
 
     public async Task<Interview> CreateNewInterviewAsync(CancellationToken ct = default)
     {
-        var setup = setupCatalog.GetByGroupName(ForGroupName);
+        ct.ThrowIfCancellationRequested();
 
-        await interviewSetupRepository.SetAsync(setup, ct);
-        await interviewSetupRepository.SaveChangesAsync();
+        var setup = setupCatalog.GetByGroupName(ForGroupName);
 
         var interview = new Interview(Guid.NewGuid(), setup: setup);
         await interviewRepository.SetAsync(interview, ct);

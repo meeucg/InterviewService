@@ -48,7 +48,7 @@ message InterviewDisplay {
 }
 
 message InterviewSetup {
-  string id = 1;
+  string hash_guid = 1;
   repeated Question required_questions = 2;
 }
 

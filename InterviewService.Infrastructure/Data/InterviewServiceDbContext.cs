@@ -16,7 +16,8 @@ public sealed class InterviewServiceDbContext(DbContextOptions<InterviewServiceD
     {
         var interviewSetup = modelBuilder.Entity<PostgresInterviewSetupDto>();
         interviewSetup.ToTable("interview_setups");
-        interviewSetup.HasKey(x => x.Id);
+        interviewSetup.HasKey(x => x.HashGuid);
+        interviewSetup.Property(x => x.HashGuid).ValueGeneratedNever();
         interviewSetup.Property(x => x.GroupName).HasMaxLength(128);
         interviewSetup.Property(x => x.PayloadJson).HasColumnType("jsonb");
         interviewSetup.HasIndex(x => x.GroupName);
@@ -25,11 +26,11 @@ public sealed class InterviewServiceDbContext(DbContextOptions<InterviewServiceD
         interview.ToTable("interviews");
         interview.HasKey(x => x.Id);
         interview.Property(x => x.PayloadJson).HasColumnType("jsonb");
-        interview.HasIndex(x => x.SetupId);
+        interview.HasIndex(x => x.SetupHashGuid);
         interview
             .HasOne(x => x.Setup)
             .WithMany(x => x.Interviews)
-            .HasForeignKey(x => x.SetupId)
+            .HasForeignKey(x => x.SetupHashGuid)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

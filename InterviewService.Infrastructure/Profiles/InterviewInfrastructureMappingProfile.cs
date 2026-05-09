@@ -12,8 +12,8 @@ public sealed class InterviewInfrastructureMappingProfile : Profile
     public InterviewInfrastructureMappingProfile()
     {
         CreateMap<Interview, RedisInterviewDocument>()
-            .ForMember(destination => destination.SetupId, options
-                => options.MapFrom(source => source.Setup.Id))
+            .ForMember(destination => destination.SetupHashGuid, options
+                => options.MapFrom(source => source.Setup.HashGuid))
             .ForMember(destination => destination.RequiredAnswers, options
                 => options.MapFrom(source => source.RequiredAnswers.ToList()))
             .ForMember(destination => destination.CompletedDynamicSteps, options

@@ -8,7 +8,7 @@ using InterviewService.Core.Models;
 namespace InterviewService.Core.Invariants;
 
 /// <summary>
-/// Computes deterministic setup identifiers from canonical setup payloads.
+/// Computes deterministic setup hash GUIDs from canonical setup payloads.
 /// </summary>
 public static class InterviewSetupIdentity
 {
@@ -24,7 +24,7 @@ public static class InterviewSetupIdentity
         SerializerOptions.Converters.Add(new JsonStringEnumConverter());
     }
 
-    public static Guid ComputeId(string groupName, IReadOnlyList<Question> requiredQuestions)
+    public static Guid ComputeHashGuid(string groupName, IReadOnlyList<Question> requiredQuestions)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(groupName);
         ArgumentNullException.ThrowIfNull(requiredQuestions);

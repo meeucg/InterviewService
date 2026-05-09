@@ -18,10 +18,10 @@ public sealed class RedisInterviewSetupStorage(IRedisConnectionProvider redisCon
     private readonly List<PendingRedisMutation> _pendingMutations = [];
     private bool _disposed;
 
-    public async Task<RedisInterviewSetupDocument?> GetAsync(Guid id, CancellationToken ct = default)
+    public async Task<RedisInterviewSetupDocument?> GetAsync(Guid hashGuid, CancellationToken ct = default)
     {
         ct.ThrowIfCancellationRequested();
-        return await _setups.FindByIdAsync(id.ToString("D"));
+        return await _setups.FindByIdAsync(hashGuid.ToString("D"));
     }
 
     public Task SetAsync(RedisInterviewSetupDocument entity, CancellationToken ct = default)
@@ -41,7 +41,7 @@ public sealed class RedisInterviewSetupStorage(IRedisConnectionProvider redisCon
         throw new InvalidOperationException("Interview setup cache updates are not allowed.");
     }
 
-    public Task DeleteAsync(Guid id, CancellationToken ct = default)
+    public Task DeleteAsync(Guid hashGuid, CancellationToken ct = default)
     {
         EnsureNotDisposed();
         ct.ThrowIfCancellationRequested();
@@ -49,7 +49,7 @@ public sealed class RedisInterviewSetupStorage(IRedisConnectionProvider redisCon
         _pendingMutations.Add(new PendingRedisMutation(
             async _ =>
             {
-                var existing = await _setups.FindByIdAsync(id.ToString("D"));
+                var existing = await _setups.FindByIdAsync(hashGuid.ToString("D"));
                 if (existing is not null)
                 {
                     await _setups.DeleteAsync(existing);

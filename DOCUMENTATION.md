@@ -32,13 +32,13 @@ Source: `InterviewService.Core/Entities/Interview.cs`
 
 ### `public sealed class InterviewSetup`
 
-Immutable interview setup version identified by a content hash and grouped by a stable business name.
+Immutable interview setup version identified by a content hash GUID and grouped by a stable business name.
 
 Source: `InterviewService.Core/Entities/InterviewSetup.cs`
 
 ### `public static class InterviewSetupIdentity`
 
-Computes deterministic setup identifiers from canonical setup payloads.
+Computes deterministic setup hash GUIDs from canonical setup payloads.
 
 Source: `InterviewService.Core/Invariants/InterviewSetupIdentity.cs`
 

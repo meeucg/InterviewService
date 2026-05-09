@@ -6,12 +6,12 @@ namespace InterviewService.Infrastructure.Models;
 /// <summary>
 /// Redis OM document for cached immutable interview setup state.
 /// </summary>
-[Document(StorageType = StorageType.Json, Prefixes = ["interviews:v4:setup"])]
+[Document(StorageType = StorageType.Json, Prefixes = ["interviews:v5:setup"])]
 public sealed class RedisInterviewSetupDocument
 {
     [RedisIdField]
     [Indexed]
-    public Guid Id { get; set; }
+    public Guid HashGuid { get; set; }
 
     [Indexed]
     public string GroupName { get; set; } = string.Empty;
